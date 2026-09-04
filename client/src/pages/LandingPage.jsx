@@ -18,9 +18,9 @@ export default function LandingPage() {
               SIH 2026 Problem Statement #92
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 animate-fade-in-up animate-delay-100">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-8 animate-fade-in-up animate-delay-100">
               Unified Access for <br />
-              <span className="gradient-text">Marginalized Entrepreneurs</span>
+              <span className="gradient-text leading-tight block mt-2">Marginalized Entrepreneurs</span>
             </h1>
             
             <p className="text-lg md:text-xl text-surface-300 mb-10 max-w-2xl mx-auto animate-fade-in-up animate-delay-200">

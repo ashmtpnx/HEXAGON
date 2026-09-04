@@ -571,10 +571,12 @@ const systemAccounts = [
    SEED EXECUTION
    ─────────────────────────────────────────────────────────────── */
 
-async function seed() {
+module.exports = async function seed(memoryUri) {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('📦 Connected to MongoDB');
+    if (!memoryUri) {
+      await mongoose.connect(MONGO_URI);
+      console.log('📦 Connected to MongoDB');
+    }
 
     // Clear existing data
     await User.deleteMany({});
@@ -682,12 +684,18 @@ async function seed() {
     console.log('   📧 vle@demo.com / demo123');
     console.log('   📧 admin@demo.com / demo123');
 
-    await mongoose.disconnect();
-    process.exit(0);
+    if (!memoryUri) {
+      await mongoose.disconnect();
+      process.exit(0);
+    }
   } catch (error) {
     console.error('❌ Seed failed:', error);
-    process.exit(1);
+    if (!memoryUri) process.exit(1);
+    throw error;
   }
-}
+};
 
-seed();
+// If run directly via CLI
+if (require.main === module) {
+  module.exports();
+}
