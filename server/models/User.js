@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     enum: ['Male', 'Female', 'Other'],
     required: function () { return this.role === 'applicant'; }
   },
-  age: { type: Number, min: 18, max: 100 },
+  age: { type: Number, min: 18, max: 100, default: 30 },
 
   // Business context
   businessStage: {
