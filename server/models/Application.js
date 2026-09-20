@@ -65,6 +65,14 @@ const applicationSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+// Virtual application number (HEX-XXXXXX)
+applicationSchema.virtual('applicationNumber').get(function() {
+  return `HEX-${this._id.toString().slice(-6).toUpperCase()}`;
+});
+
+applicationSchema.set('toJSON', { virtuals: true });
+applicationSchema.set('toObject', { virtuals: true });
+
 // Index for duplicate detection
 applicationSchema.index({ claimFingerprint: 1 });
 applicationSchema.index({ userId: 1, schemeId: 1 });

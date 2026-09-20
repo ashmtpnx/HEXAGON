@@ -1,20 +1,20 @@
 # 🧠 AI Brain Memory Snapshot — HEXAGON
-> **Status**: ACTIVE | **Total Memories**: 11 | **Last Compiled**: 2026-09-20 11:51:51
+> **Status**: ACTIVE | **Total Memories**: 12 | **Last Compiled**: 2026-09-20 12:04:58
 > **Universal Model Protocol**: *Any AI model interacting with this codebase MUST read and adhere to this memory snapshot before taking action.*
 
 ---
 
 ## ⚡ Current Working State
-- **Active Task**: Fix matching engine endpoints
+- **Active Task**: Fix application submission API routes
 - **Last Updating Model**: `Gemini`
 - **Blockers / Gotchas**: None
 - **Active Goals & Next Steps**:
-Commit & push matching engine fixes to GitHub
+Commit & push application route fixes to GitHub
 - **Working Notes**: Git Branch: main
 Recent Commits:
+c2f4c66 fix: add GET /api/match/me and GET /api/match/user/:userId routes for scheme matching
 84570e6 fix: add demo user accounts to seedData and auto-seed on server startup
 8aaad13 feat: redesign UI using Cleopatra minimal template system
-71bf02e feat: complete official government light theme UI redesign & AI brain memory setup
 Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 
 ---
@@ -56,6 +56,7 @@ Any AI model (Gemini, Claude, GPT-4, DeepSeek, Cursor) working in this workspace
 ---
 
 ## 🐛 Known Gotchas & Solved Bugs
+- **Fix Application Submission & Route Aliases**: Added /apply, /my-applications, PUT /:id/status route handlers in server/routes/applications.js and added applicationNumber virtual to Application schema.
 - **Fix Scheme Matching Routes GET /api/match/me**: Added GET /api/match/me and GET /api/match/user/:userId endpoints in server/routes/match.js, added default 30 for age in User schema, ensuring matching engine calculates entitlements for demo applicants.
 - **Fix Demo Accounts & Auto-Seeding**: Added applicant@example.com, ngo@example.com, admin@example.com demo users to seedData.js and added auto-seeding on server start plus /api/auth/seed endpoint.
 - **PowerShell & Windows Path Handling Gotcha**: When executing commands in pwsh on Windows, use Get-ChildItem instead of 'ls -la'. Use forward slashes in markdown file links (file:///d:/...). Always wrap JSON or complex arguments properly in CLI calls.
