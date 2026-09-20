@@ -39,13 +39,34 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// Auto-seed route
+app.post('/api/auth/seed', async (req, res) => {
+  try {
+    const seedData = require('./utils/seedData');
+    await seedData();
+    res.json({ message: 'Database seeded successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Seeding failed', details: err.message });
+  }
+});
+
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const User = require('./models/User');
 
 // Connect to MongoDB and start server
 async function startServer() {
   try {
     await mongoose.connect(MONGO_URI);
     console.log('✅ Connected to MongoDB (Local/Cloud)');
+    
+    // Auto-seed if database has 0 users
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      console.log('🌱 Database empty. Auto-seeding initial demo data...');
+      const seedData = require('./utils/seedData');
+      await seedData();
+      console.log('✅ Database seeded successfully');
+    }
   } catch (err) {
     console.log('⚠️ Local MongoDB connection failed. Starting In-Memory MongoDB Server for demo purposes...');
     const mongoServer = await MongoMemoryServer.create();

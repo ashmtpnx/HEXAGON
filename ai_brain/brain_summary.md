@@ -1,20 +1,20 @@
 # 🧠 AI Brain Memory Snapshot — HEXAGON
-> **Status**: ACTIVE | **Total Memories**: 9 | **Last Compiled**: 2026-09-20 11:34:55
+> **Status**: ACTIVE | **Total Memories**: 10 | **Last Compiled**: 2026-09-20 11:43:53
 > **Universal Model Protocol**: *Any AI model interacting with this codebase MUST read and adhere to this memory snapshot before taking action.*
 
 ---
 
 ## ⚡ Current Working State
-- **Active Task**: Cleopatra minimal UI overhaul
+- **Active Task**: Fix demo account authentication
 - **Last Updating Model**: `Gemini`
 - **Blockers / Gotchas**: None
 - **Active Goals & Next Steps**:
-Commit and push Cleopatra UI changes to GitHub
+Commit & push backend seed fixes to GitHub
 - **Working Notes**: Git Branch: main
 Recent Commits:
+8aaad13 feat: redesign UI using Cleopatra minimal template system
 71bf02e feat: complete official government light theme UI redesign & AI brain memory setup
 fc7235c Install dev dependencies for client build
-a6ece94 Remove tsc from build script to avoid OOM on Render
 Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 
 ---
@@ -56,6 +56,7 @@ Any AI model (Gemini, Claude, GPT-4, DeepSeek, Cursor) working in this workspace
 ---
 
 ## 🐛 Known Gotchas & Solved Bugs
+- **Fix Demo Accounts & Auto-Seeding**: Added applicant@example.com, ngo@example.com, admin@example.com demo users to seedData.js and added auto-seeding on server start plus /api/auth/seed endpoint.
 - **PowerShell & Windows Path Handling Gotcha**: When executing commands in pwsh on Windows, use Get-ChildItem instead of 'ls -la'. Use forward slashes in markdown file links (file:///d:/...). Always wrap JSON or complex arguments properly in CLI calls.
 
 ---

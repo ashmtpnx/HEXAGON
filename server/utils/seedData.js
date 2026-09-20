@@ -565,6 +565,9 @@ const systemAccounts = [
   { name: 'Demo Applicant', email: 'applicant@demo.com', password: 'demo123', role: 'applicant', category: 'SC', gender: 'Female', age: 30, businessStage: 'startup', sector: 'manufacturing', location: { state: 'Uttar Pradesh', district: 'Lucknow', isRural: true }, annualIncome: 200000, aadhaarHash: crypto.createHash('sha256').update('aadhaar-demo-applicant').digest('hex'), educationLevel: '10th_pass' },
   { name: 'VLE Operator — Rajesh', email: 'vle@demo.com', password: 'demo123', role: 'vle' },
   { name: 'Ministry Admin', email: 'admin@demo.com', password: 'demo123', role: 'admin' },
+  { name: 'Demo Applicant (Example)', email: 'applicant@example.com', password: 'password123', role: 'applicant', category: 'SC', gender: 'Female', age: 30, businessStage: 'startup', sector: 'manufacturing', location: { state: 'Uttar Pradesh', district: 'Lucknow', isRural: true }, annualIncome: 200000, aadhaarHash: crypto.createHash('sha256').update('aadhaar-demo-applicant-ex').digest('hex'), educationLevel: '10th_pass' },
+  { name: 'Field Worker (Example)', email: 'ngo@example.com', password: 'password123', role: 'ngo_worker' },
+  { name: 'Ministry Admin (Example)', email: 'admin@example.com', password: 'password123', role: 'admin' },
 ];
 
 /* ───────────────────────────────────────────────────────────────
