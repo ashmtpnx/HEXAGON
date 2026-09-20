@@ -1,20 +1,20 @@
 # 🧠 AI Brain Memory Snapshot — HEXAGON
-> **Status**: ACTIVE | **Total Memories**: 12 | **Last Compiled**: 2026-09-20 12:04:58
+> **Status**: ACTIVE | **Total Memories**: 13 | **Last Compiled**: 2026-09-20 13:20:24
 > **Universal Model Protocol**: *Any AI model interacting with this codebase MUST read and adhere to this memory snapshot before taking action.*
 
 ---
 
 ## ⚡ Current Working State
-- **Active Task**: Fix application submission API routes
+- **Active Task**: Fix Application Detail rendering
 - **Last Updating Model**: `Gemini`
 - **Blockers / Gotchas**: None
 - **Active Goals & Next Steps**:
-Commit & push application route fixes to GitHub
+Commit & push frontend ApplicationDetail fixes to GitHub
 - **Working Notes**: Git Branch: main
 Recent Commits:
+46c3962 fix: add /apply and /my-applications route aliases to server/routes/applications.js
 c2f4c66 fix: add GET /api/match/me and GET /api/match/user/:userId routes for scheme matching
 84570e6 fix: add demo user accounts to seedData and auto-seed on server startup
-8aaad13 feat: redesign UI using Cleopatra minimal template system
 Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 
 ---
@@ -56,6 +56,7 @@ Any AI model (Gemini, Claude, GPT-4, DeepSeek, Cursor) working in this workspace
 ---
 
 ## 🐛 Known Gotchas & Solved Bugs
+- **Fix Application Detail Rendering & Safe Navigation**: Hardened ApplicationDetail.jsx and MatchResults.jsx against unpopulated responses, adding defensive fallbacks and loading states to ensure seamless navigation after applying for a scheme.
 - **Fix Application Submission & Route Aliases**: Added /apply, /my-applications, PUT /:id/status route handlers in server/routes/applications.js and added applicationNumber virtual to Application schema.
 - **Fix Scheme Matching Routes GET /api/match/me**: Added GET /api/match/me and GET /api/match/user/:userId endpoints in server/routes/match.js, added default 30 for age in User schema, ensuring matching engine calculates entitlements for demo applicants.
 - **Fix Demo Accounts & Auto-Seeding**: Added applicant@example.com, ngo@example.com, admin@example.com demo users to seedData.js and added auto-seeding on server start plus /api/auth/seed endpoint.

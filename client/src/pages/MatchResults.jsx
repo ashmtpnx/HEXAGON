@@ -35,9 +35,16 @@ export default function MatchResults() {
       if (targetUserId) payload.applicantUserId = targetUserId;
 
       const res = await api.post('/applications/apply', payload);
-      navigate(`/applications/${res.data._id}`);
+      const appData = res.data?.application || res.data;
+      const appId = appData?._id || appData?.id;
+
+      if (appId) {
+        navigate(`/applications/${appId}`);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to submit application.');
+      alert(err.response?.data?.error || err.response?.data?.message || 'Failed to submit application.');
     } finally {
       setApplyingSchemeId(null);
     }
