@@ -1,232 +1,191 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, LineChart, Line, AreaChart, Area } from 'recharts';
-import { ShieldAlert, TrendingUp, Users, AlertTriangle, FileText, CheckCircle, Clock, HeartHandshake } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import StatusBadge from '../components/StatusBadge';
+import { Activity, Users, FileText, CheckCircle, Clock, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [data, setData] = useState({
-    overview: null,
-    biasFlags: null,
-    duplicates: null,
-    rejections: null,
-    timeline: null,
-    categoryDistribution: null,
-    grievanceStats: null,
-  });
+  const [stats, setStats] = useState(null);
+  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const fetchDashboardData = async () => {
-    try {
-      const [overviewRes, biasRes, duplicatesRes, rejectionsRes, timelineRes, catDistRes, grievanceRes] = await Promise.all([
-        api.get('/analytics/overview'),
-        api.get('/analytics/bias-flags'),
-        api.get('/analytics/duplicates'),
-        api.get('/analytics/rejections'),
-        api.get('/analytics/timeline'),
-        api.get('/analytics/category-distribution'),
-        api.get('/analytics/grievance-stats')
-      ]);
-
-      setData({
-        overview: overviewRes.data,
-        biasFlags: biasRes.data,
-        duplicates: duplicatesRes.data,
-        rejections: rejectionsRes.data,
-        timeline: timelineRes.data.timeline,
-        categoryDistribution: catDistRes.data.distribution,
-        grievanceStats: grievanceRes.data
-      });
-    } catch (error) {
-      console.error('Failed to load admin analytics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  if (loading || !data.overview) return <div className="p-8 text-center text-surface-500">Loading Analytics Infrastructure...</div>;
+  const fetchDashboardData = async () => {
+    try {
+      const [statsRes, appsRes] = await Promise.all([
+        api.get('/analytics/overview'),
+        api.get('/applications/all')
+      ]);
+      setStats(statsRes.data);
+      setApplications(appsRes.data);
+    } catch (err) {
+      console.error('Failed to load admin dashboard data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const { overview, biasFlags, duplicates, rejections, timeline, categoryDistribution, grievanceStats } = data;
+  const chartData = stats?.statusBreakdown?.map(item => ({
+    name: item._id?.replace('_', ' ')?.toUpperCase() || 'UNKNOWN',
+    count: item.count
+  })) || [];
 
-  const COLORS = ['#1a3a5c', '#138808', '#f37021', '#dc2626', '#7c3aed'];
+  const COLORS = ['#0f172a', '#d97706', '#059669', '#dc2626', '#2563eb'];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+    <div className="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <h1 className="text-3xl font-bold text-surface-800 mb-2">Ministry Analytics Dashboard</h1>
-          <p className="text-surface-500">Monitoring infrastructure to detect systemic bias, duplicate claims, and invalid rejections.</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Admin & District Oversight Panel</h1>
+          <p className="text-xs text-slate-500">Real-Time Application Verifications & Statutory SLA Tracking</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="cleo-badge bg-slate-900 text-white border-slate-900">Live Telemetry</span>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <KPICard title="Total Applications" value={overview.totalApplications} icon={FileText} />
-        <KPICard title="Approval Rate" value={`${overview.approvalRate}%`} icon={TrendingUp} color="text-success-500" />
-        <KPICard title="Grievance Resolution" value={`${grievanceStats.resolutionRate}%`} icon={CheckCircle} color="text-success-500" />
-        <KPICard title="Invalid Rejections" value={overview.invalidRejections} icon={ShieldAlert} color="text-danger-500" />
-        <KPICard title="Assisted Profiles" value={overview.assistedProfiles} icon={HeartHandshake} color="text-accent-500" />
-      </div>
-
-      {/* Systemic Bias Flags */}
-      <div className="glass-card p-6 mb-8 border-l-4 border-l-danger-500">
-        <h3 className="text-lg font-bold text-surface-800 flex items-center gap-2 mb-4">
-          <AlertTriangle className="w-5 h-5 text-danger-500" />
-          Systemic Bias Detection Alerts
-        </h3>
-        {biasFlags.biasFlags.length === 0 ? (
-          <p className="text-surface-500 text-sm">No systemic bias patterns detected currently.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {biasFlags.biasFlags.map((flag, idx) => (
-              <div key={idx} className="bg-danger-50 border border-danger-100 rounded-lg p-4">
-                <p className="font-bold text-danger-600 mb-2">{flag.category} Category</p>
-                <p className="text-sm text-surface-600 mb-3">{flag.flagMessage}</p>
-                <div className="flex gap-4 text-xs">
-                  <span className="text-surface-500">Rejection Rate: <span className="text-danger-500 font-bold">{flag.rejectionRate}%</span></span>
-                  <span className="text-surface-500">General Category Rate: <span className="text-surface-700">{flag.generalRejectionRate}%</span></span>
-                </div>
-              </div>
-            ))}
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="cleo-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-slate-500 text-xs">
+            <span>Total Applications</span>
+            <FileText className="w-4 h-4 text-slate-400" />
           </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        
-        {/* Application Volume Over Time */}
-        <div className="glass-card p-6 lg:col-span-2">
-          <h3 className="text-lg font-bold text-surface-800 mb-6">Application Volume Over Time</h3>
-          <div className="h-64">
-            {timeline && timeline.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timeline} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorApps" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#1a3a5c" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#1a3a5c" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="name" stroke="#9aa5b4" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#9aa5b4" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e5e9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-                    itemStyle={{ color: '#1e293b' }}
-                  />
-                  <Area type="monotone" dataKey="applications" stroke="#1a3a5c" strokeWidth={2} fillOpacity={1} fill="url(#colorApps)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-full items-center justify-center text-surface-400">Not enough data to display timeline</div>
-            )}
-          </div>
+          <p className="text-2xl font-extrabold text-slate-900 font-mono">{stats?.totalApplications || 0}</p>
         </div>
 
-        {/* Category Distribution (Pie) */}
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-bold text-surface-800 mb-6">User Distribution</h3>
-          <div className="h-64">
+        <div className="cleo-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-slate-500 text-xs">
+            <span>Approved Applications</span>
+            <CheckCircle className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-2xl font-extrabold text-emerald-700 font-mono">{stats?.approvedApplications || 0}</p>
+        </div>
+
+        <div className="cleo-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-slate-500 text-xs">
+            <span>Pending Review</span>
+            <Clock className="w-4 h-4 text-amber-600" />
+          </div>
+          <p className="text-2xl font-extrabold text-amber-700 font-mono">{stats?.pendingApplications || 0}</p>
+        </div>
+
+        <div className="cleo-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-slate-500 text-xs">
+            <span>Approval Rate</span>
+            <Activity className="w-4 h-4 text-slate-400" />
+          </div>
+          <p className="text-2xl font-extrabold text-slate-900 font-mono">{stats?.approvalRate || '0'}%</p>
+        </div>
+      </div>
+
+      {/* Chart & Queue Section */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Chart */}
+        <div className="md:col-span-2 cleo-card p-6 space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Application Distribution by Status</h2>
+          <div className="h-64 w-full pt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {categoryDistribution.map((entry, index) => (
+              <BarChart data={chartData}>
+                <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', border: 'none', color: '#fff', fontSize: '12px' }}
+                  cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                  {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e5e9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-                  itemStyle={{ color: '#1e293b' }}
-                />
-                <Legend verticalAlign="bottom" height={36} iconType="circle" />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Rejection Reasons Chart */}
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-bold text-surface-800 mb-6">Rejection Reasons by Category</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={rejections.byCategory.slice(0, 5)}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-              >
-                <XAxis type="number" stroke="#9aa5b4" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis dataKey="_id.rejectionCategory" type="category" width={100} tick={{fill: '#64748b', fontSize: 12}} tickLine={false} axisLine={false} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e5e9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-                  itemStyle={{ color: '#1e293b' }}
-                  cursor={{fill: 'rgba(26, 58, 92, 0.05)'}}
-                />
-                <Bar dataKey="count" fill="#1a3a5c" radius={[0, 4, 4, 0]}>
-                  {rejections.byCategory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.invalidCount > 0 ? '#dc2626' : '#1a3a5c'} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-xs text-surface-400 mt-4 flex items-center gap-2">
-            <span className="w-3 h-3 rounded-sm bg-danger-500 inline-block"></span> Red indicates categories containing flagged/invalid rejections.
-          </p>
         </div>
 
-        {/* Invalid Rejections Log */}
-        <div className="glass-card p-6 flex flex-col h-[350px]">
-          <h3 className="text-lg font-bold text-surface-800 mb-4 flex justify-between items-center">
-            Recent Invalid Rejections
-            <span className="bg-danger-50 text-danger-500 text-xs px-2 py-1 rounded border border-danger-100">{rejections.flagged.length} Flagged</span>
-          </h3>
-          <div className="overflow-y-auto pr-2 space-y-3 flex-grow">
-            {rejections.flagged.length === 0 ? (
-              <p className="text-surface-500 text-sm">No invalid rejections found.</p>
-            ) : (
-              rejections.flagged.map((app, idx) => (
-                <div key={idx} className="bg-surface-50 border border-surface-200 p-3 rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-sm text-surface-800">{app.schemeId?.name}</span>
-                    <span className="text-xs bg-surface-100 px-2 py-0.5 rounded text-surface-500 border border-surface-200">{app.userId?.category}</span>
-                  </div>
-                  <p className="text-xs text-surface-500 mb-1">Stated Reason: <span className="text-surface-700">"{app.rejectionReason}"</span></p>
-                  <p className="text-xs text-danger-500 font-medium">Flag: {app.rejectionFlagReason}</p>
-                </div>
-              ))
-            )}
+        {/* Right Col: Admin Action Summary */}
+        <div className="cleo-card p-6 space-y-4 bg-white">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Statutory SLA Monitor</h2>
+          <div className="space-y-3 text-xs">
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-900 space-y-1">
+              <p className="font-bold flex items-center gap-1">
+                <ShieldAlert className="w-4 h-4 text-amber-600" />
+                14-Day Binding Verification Rule
+              </p>
+              <p className="text-[11px] leading-relaxed">
+                Applications exceeding 14 days without verifier action trigger automatic deemed approval status.
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <div className="flex justify-between text-slate-600">
+                <span>Active Verifiers</span>
+                <span className="font-bold text-slate-900">12 Officers</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Avg SLA Processing</span>
+                <span className="font-bold text-slate-900">4.2 Days</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-    </div>
-  );
-}
-
-function KPICard({ title, value, icon: Icon, color = "text-primary-600", trend }) {
-  return (
-    <div className="glass-card p-5">
-      <div className="flex justify-between items-start mb-2">
-        <p className="text-xs font-medium text-surface-500">{title}</p>
-        <div className={`p-2 rounded-lg bg-surface-50 border border-surface-200 ${color}`}>
-          <Icon className="w-4 h-4" />
+      {/* Applications Queue Table */}
+      <div className="cleo-card overflow-hidden">
+        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Verification Queue</h2>
+          <span className="text-xs text-slate-500 font-mono">{applications.length} Records</span>
         </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-xs text-slate-500">Loading queue...</div>
+        ) : applications.length === 0 ? (
+          <div className="p-8 text-center text-xs text-slate-500">No applications pending verification.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 bg-white text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="p-4">App ID</th>
+                  <th className="p-4">Applicant</th>
+                  <th className="p-4">Scheme</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Submitted</th>
+                  <th className="p-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {applications.map((app) => (
+                  <tr key={app._id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-4 font-mono font-bold text-slate-900">{app.applicationNumber}</td>
+                    <td className="p-4 text-slate-800 font-medium">{app.userId?.name || 'N/A'}</td>
+                    <td className="p-4 text-slate-600 max-w-xs truncate">{app.schemeId?.name || 'N/A'}</td>
+                    <td className="p-4">
+                      <StatusBadge status={app.status} />
+                    </td>
+                    <td className="p-4 font-mono text-slate-500">{new Date(app.createdAt).toLocaleDateString('en-IN')}</td>
+                    <td className="p-4 text-right">
+                      <Link
+                        to={`/applications/${app._id}`}
+                        className="cleo-btn cleo-btn-secondary text-xs px-2.5 py-1"
+                      >
+                        <span>Inspect</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-      <h3 className="text-2xl font-black text-surface-800">{value}</h3>
     </div>
   );
 }

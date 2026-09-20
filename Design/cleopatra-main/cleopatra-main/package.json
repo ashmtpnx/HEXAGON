@@ -1,0 +1,47 @@
+{
+  "name": "@moesaid/cleopatra",
+  "version": "2.0.0",
+  "description": "Cleopatra admin dashboard template built with Vite and Tailwind CSS v4",
+  "author": "Mohamed Said , moesaid.com",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "git": "git add . && git commit -m",
+    "postgit": "git push -u origin master && git subtree push --prefix dist origin gh-pages"
+  },
+  "keywords": [
+    "cleopatra",
+    "vite",
+    "tailwind",
+    "tailwindcss",
+    "tailwindcss-v4",
+    "admin",
+    "dashboard",
+    "admin dashboard",
+    "admin themes",
+    "modern css",
+    "admin dashboard template"
+  ],
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "lightningcss": "^1.28.2",
+    "sass": "^1.97.2",
+    "svgo": "^4.0.0",
+    "tailwindcss": "^4.1.18",
+    "vite": "^6.0.5",
+    "vite-plugin-handlebars": "^2.0.0",
+    "vite-plugin-image-optimizer": "^1.1.8"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "apexcharts": "^5.3.6",
+    "chart.js": "^4.4.7",
+    "lucide-static": "^0.563.0",
+    "postcss": "^8.5.6",
+    "sharp": "^0.34.5",
+    "shiki": "^3.21.0"
+  }
+}

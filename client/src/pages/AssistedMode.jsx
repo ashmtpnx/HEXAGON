@@ -2,165 +2,194 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { Handshake, UserPlus, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Handshake, UserPlus, ArrowRight, ShieldCheck, Volume2 } from 'lucide-react';
 
 export default function AssistedMode() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [audioPrompt, setAudioPrompt] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    category: 'General',
-    gender: 'Male',
-    age: '',
-    businessStage: 'idea',
-    sector: 'services',
-    district: '',
-    isRural: 'true',
-    annualIncome: '',
+    phone: '',
+    category: 'SC',
+    gender: 'Female',
+    annualIncome: 120000,
+    sector: 'Manufacturing',
+    district: 'Varanasi',
+    state: 'Uttar Pradesh'
   });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleAudioHelp = () => {
+    setAudioPrompt(true);
+    const msg = new SpeechSynthesisUtterance("Welcome to HEXAGON Field Kiosk. Please enter applicant name, category, and income details to find eligible schemes.");
+    msg.lang = 'en-IN';
+    window.speechSynthesis.speak(msg);
+    setTimeout(() => setAudioPrompt(false), 5000);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    
+
     try {
-      // Create a dummy email if not provided, just for the system
-      const emailToUse = formData.email || `assisted_${Date.now()}@demo.com`;
-      
       const payload = {
-        ...formData,
-        email: emailToUse,
-        password: 'demo123', // Default password for assisted accounts
+        name: formData.name,
+        email: formData.email || `applicant_${Date.now()}@hexagon.local`,
+        password: 'password123',
         role: 'applicant',
-        isAssistedProfile: true,
-        assistedBy: user._id,
-        isRural: formData.isRural === 'true',
-        age: parseInt(formData.age),
-        annualIncome: parseInt(formData.annualIncome || 0),
-        location: { district: formData.district, isRural: formData.isRural === 'true' }
+        demographics: {
+          category: formData.category,
+          gender: formData.gender,
+          district: formData.district,
+          state: formData.state
+        },
+        financials: {
+          annualIncome: Number(formData.annualIncome)
+        },
+        businessDetails: {
+          sector: formData.sector
+        }
       };
 
       const res = await api.post('/auth/register', payload);
-      const newUserId = res.data.user.id;
-      
-      // Navigate directly to match engine, passing the assisted user ID
-      navigate('/match', { state: { assistedUserId: newUserId } });
-      
+      navigate('/match', { state: { userId: res.data.user.id } });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create profile');
+      alert(err.response?.data?.error || 'Failed to create assisted profile.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-50 border-2 border-primary-200 mb-4">
-          <Handshake className="w-8 h-8 text-primary-600" />
+    <div className="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className="cleo-card p-6 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="cleo-badge bg-emerald-50 text-emerald-800 border-emerald-200">Field Kiosk Active</span>
+            <span className="text-xs text-slate-500 font-mono">NGO / District Officer Desk</span>
+          </div>
+          <h1 className="text-2xl font-extrabold text-slate-900">Assisted Application Kiosk</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Register ground-level applicants lacking digital access & instantly evaluate entitlements.</p>
         </div>
-        <h1 className="text-3xl font-bold text-surface-800 mb-2">VLE Assisted Mode</h1>
-        <p className="text-surface-500 max-w-xl mx-auto">
-          Create a profile on behalf of a beneficiary. This form is simplified for Village Level Entrepreneurs to quickly capture eligibility criteria.
-        </p>
+
+        <button
+          onClick={handleAudioHelp}
+          className={`cleo-btn text-xs ${audioPrompt ? 'bg-amber-600 text-white border-amber-600' : 'cleo-btn-secondary'}`}
+        >
+          <Volume2 className="w-4 h-4 text-amber-600" />
+          <span>{audioPrompt ? 'Speaking Prompt...' : 'Voice Assist'}</span>
+        </button>
       </div>
 
-      <div className="glass-card p-6 md:p-8">
-        {error && <div className="bg-danger-50 text-danger-500 p-4 rounded-lg border border-danger-100 mb-6 text-sm">{error}</div>}
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Identity */}
+      {/* Main Kiosk Form */}
+      <form onSubmit={handleSubmit} className="cleo-card p-6 sm:p-8 bg-white space-y-6">
+        <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+          Applicant Profile Details
+        </h2>
+
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <h3 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-4 border-b border-surface-200 pb-2">Identity</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Full Name</label>
-                <input required type="text" name="name" value={formData.name} onChange={handleChange} className="input-field" placeholder="Beneficiary name" />
-              </div>
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Age</label>
-                <input required type="number" min="18" max="100" name="age" value={formData.age} onChange={handleChange} className="input-field" placeholder="e.g., 35" />
-              </div>
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Gender</label>
-                <select name="gender" value={formData.gender} onChange={handleChange} className="input-field">
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Social Category</label>
-                <select name="category" value={formData.category} onChange={handleChange} className="input-field">
-                  <option value="SC">SC (Scheduled Caste)</option>
-                  <option value="ST">ST (Scheduled Tribe)</option>
-                  <option value="OBC">OBC (Other Backward Classes)</option>
-                  <option value="Minority">Minority</option>
-                  <option value="General">General</option>
-                </select>
-              </div>
-            </div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
+            <input
+              type="text"
+              name="name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. Sunita Devi"
+              className="cleo-input"
+            />
           </div>
 
-          {/* Business & Geography */}
           <div>
-            <h3 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-4 border-b border-surface-200 pb-2 mt-8">Business & Geography</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Business Stage</label>
-                <select name="businessStage" value={formData.businessStage} onChange={handleChange} className="input-field">
-                  <option value="idea">Idea / Greenfield (New)</option>
-                  <option value="startup">Startup (Less than 2 years)</option>
-                  <option value="growing">Growing</option>
-                  <option value="established">Established</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Sector</label>
-                <select name="sector" value={formData.sector} onChange={handleChange} className="input-field">
-                  <option value="manufacturing">Manufacturing</option>
-                  <option value="services">Services</option>
-                  <option value="trading">Trading</option>
-                  <option value="agriculture">Agriculture / Allied</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Annual Family Income (₹)</label>
-                <input required type="number" name="annualIncome" value={formData.annualIncome} onChange={handleChange} className="input-field" placeholder="e.g., 120000" />
-              </div>
-              <div>
-                <label className="block text-sm text-surface-600 mb-1 font-medium">Location Type</label>
-                <select name="isRural" value={formData.isRural} onChange={handleChange} className="input-field">
-                  <option value="true">Rural</option>
-                  <option value="false">Urban</option>
-                </select>
-              </div>
-            </div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile / Email Address</label>
+            <input
+              type="text"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="sunita@example.com (optional)"
+              className="cleo-input"
+            />
           </div>
 
-          <div className="bg-success-100 p-4 rounded-lg flex items-start gap-3 mt-8 border border-success-100">
-            <ShieldCheck className="w-5 h-5 text-success-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-surface-600">
-              By proceeding, you verify that you have collected the beneficiary's consent to enter their details. A cryptographic hash will be generated to prevent duplicate claims across schemes.
-            </p>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Social Category *</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="cleo-input"
+            >
+              <option value="SC">SC (Scheduled Caste)</option>
+              <option value="ST">ST (Scheduled Tribe)</option>
+              <option value="OBC">OBC (Other Backward Class)</option>
+              <option value="Minority">Minority Community</option>
+              <option value="General">General</option>
+            </select>
           </div>
 
-          <button type="submit" disabled={loading} className="btn-gold w-full py-3 flex items-center justify-center gap-2">
-            {loading ? 'Processing...' : 'Create Profile & Find Schemes'}
-            {!loading && <ArrowRight className="w-4 h-4" />}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Gender *</label>
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className="cleo-input"
+            >
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Transgender / Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Annual Family Income (₹) *</label>
+            <input
+              type="number"
+              name="annualIncome"
+              required
+              value={formData.annualIncome}
+              onChange={handleChange}
+              className="cleo-input font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Enterprise Sector *</label>
+            <select
+              name="sector"
+              value={formData.sector}
+              onChange={handleChange}
+              className="cleo-input"
+            >
+              <option value="Manufacturing">Manufacturing & Handicrafts</option>
+              <option value="Services">Services & Retail</option>
+              <option value="Agriculture">Agri-Processing & Dairy</option>
+              <option value="Textiles">Textiles & Weaving</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-slate-200 flex justify-end">
+          <button
+            type="submit"
+            disabled={loading}
+            className="cleo-btn cleo-btn-accent px-6 py-2.5 text-xs font-semibold"
+          >
+            {loading ? 'Processing Profile...' : 'Submit Profile & Evaluate Schemes'}
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }

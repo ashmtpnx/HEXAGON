@@ -1,168 +1,123 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
-import { ShieldAlert, CheckCircle, XCircle, ArrowRight, BookOpen } from 'lucide-react';
+import { ShieldAlert, CheckCircle, XCircle, ArrowRight, BookOpen, Hexagon } from 'lucide-react';
 
 export default function MatchResults() {
-  const [results, setResults] = useState([]);
+  const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [applyingTo, setApplyingTo] = useState(null);
-  
+  const [applyingSchemeId, setApplyingSchemeId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const assistedUserId = location.state?.assistedUserId; // For VLE mode
 
   useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const res = await api.post('/match/find', { assistedUserId });
-        setResults(res.data.matches);
-      } catch (err) {
-        setError('Failed to run matching engine.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMatches();
-  }, [assistedUserId]);
+    runMatch();
+  }, []);
 
-  const handleApply = async (schemeId) => {
-    setApplyingTo(schemeId);
+  const runMatch = async () => {
     try {
-      const res = await api.post('/applications', { 
-        schemeId,
-        assistedUserId
-      });
-      navigate(`/application/${res.data.application._id}`);
+      const targetUserId = location.state?.userId;
+      const endpoint = targetUserId ? `/match/user/${targetUserId}` : '/match/me';
+      const res = await api.get(endpoint);
+      setMatches(res.data.matches || []);
     } catch (err) {
-      if (err.response?.status === 409) {
-        // Duplicate detection
-        alert(`Fraud Prevention Alert: ${err.response.data.message}`);
-        navigate(`/application/${err.response.data.existingApplicationId}`);
-      } else {
-        alert('Failed to start application.');
-      }
-      setApplyingTo(null);
+      console.error('Failed to run matching engine', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return (
-    <div className="flex-grow flex flex-col items-center justify-center">
-      <div className="w-16 h-16 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin mb-4"></div>
-      <p className="text-primary-600 font-medium">Running Verified Matching Engine...</p>
-      <p className="text-surface-400 text-sm mt-2">Checking eligibility against live government rules.</p>
-    </div>
-  );
+  const handleApply = async (schemeId) => {
+    setApplyingSchemeId(schemeId);
+    try {
+      const targetUserId = location.state?.userId;
+      const payload = { schemeId };
+      if (targetUserId) payload.applicantUserId = targetUserId;
+
+      const res = await api.post('/applications/apply', payload);
+      navigate(`/applications/${res.data._id}`);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to submit application.');
+    } finally {
+      setApplyingSchemeId(null);
+    }
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-surface-800 mb-2">Matched Schemes</h1>
-        <p className="text-surface-500">Based on your validated profile, here are the schemes you are eligible for. The "Why you matched" section provides full transparency to bypass middlemen.</p>
-        
-        {assistedUserId && (
-          <div className="mt-4 p-3 bg-primary-50 rounded-lg border border-primary-100 text-sm text-primary-600 inline-block">
-            VLE Mode: Showing results for assisted profile.
-          </div>
-        )}
+    <div className="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className="cleo-card p-6 bg-white space-y-2">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700">
+          <Hexagon className="w-4 h-4 text-amber-600" />
+          <span>Deterministic Matching Engine Output</span>
+        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900">Verified Scheme Eligibility Results</h1>
+        <p className="text-xs text-slate-500">Evaluated against statutory guidelines, income thresholds, and category entitlements.</p>
       </div>
 
-      {error && <div className="bg-danger-50 text-danger-500 p-4 rounded-lg border border-danger-100 mb-6">{error}</div>}
-
-      {results.length === 0 ? (
-        <div className="glass-card p-12 text-center">
-          <p className="text-xl text-surface-800 mb-2">No matching schemes found right now.</p>
-          <p className="text-surface-500">Try updating your profile or check back later as new schemes are added.</p>
+      {loading ? (
+        <div className="cleo-card p-12 text-center space-y-3">
+          <div className="w-6 h-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs text-slate-600 font-medium">Evaluating scheme criteria and statutory rules...</p>
+        </div>
+      ) : matches.length === 0 ? (
+        <div className="cleo-card p-8 text-center space-y-3">
+          <ShieldAlert className="w-8 h-8 text-slate-400 mx-auto" />
+          <p className="text-xs text-slate-600">No matching welfare schemes found for the current profile parameters.</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {results.map((result, idx) => (
-            <div key={result.scheme._id} className="glass-card overflow-hidden animate-fade-in-up" style={{ animationDelay: `${idx * 100}ms` }}>
-              <div className="p-6 md:p-8">
-                <div className="flex flex-col md:flex-row gap-8">
-                  
-                  {/* Left: Scheme Info & Match Score */}
-                  <div className="md:w-1/3 flex flex-col justify-between border-r border-transparent md:border-surface-200 md:pr-8">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="px-3 py-1 bg-primary-50 text-primary-600 text-xs font-bold rounded uppercase tracking-wider border border-primary-100">
-                          {result.scheme.schemeType}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl font-black text-primary-600">{result.matchScore}%</span>
-                          <span className="text-xs text-surface-400 uppercase tracking-widest">Match</span>
-                        </div>
-                      </div>
-                      <h2 className="text-2xl font-bold text-surface-800 mb-2">{result.scheme.name}</h2>
-                      <p className="text-sm text-primary-500 font-medium mb-4">{result.scheme.ministry}</p>
-                      <p className="text-surface-500 text-sm mb-6">{result.scheme.description}</p>
-                    </div>
-
-                    <button 
-                      onClick={() => handleApply(result.scheme._id)}
-                      disabled={applyingTo === result.scheme._id}
-                      className="btn-gold w-full flex items-center justify-center gap-2 py-3"
-                    >
-                      {applyingTo === result.scheme._id ? 'Starting...' : 'Start Application'}
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Right: Explanations & Rights */}
-                  <div className="md:w-2/3 space-y-6">
-                    {/* Why you matched */}
-                    <div>
-                      <h3 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-success-500" />
-                        Why you matched
-                      </h3>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {result.matchReasons.map((reason, i) => (
-                          <li key={i} className="bg-surface-50 p-3 rounded-lg border border-surface-200">
-                            <p className="text-sm text-surface-700">{reason.explanation}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Unmatched rules (if score < 100) */}
-                    {result.unmatchedReasons?.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                          <XCircle className="w-4 h-4 text-danger-500" />
-                          Partial Mismatches
-                        </h3>
-                        <ul className="space-y-2">
-                          {result.unmatchedReasons.map((reason, i) => (
-                            <li key={i} className="text-sm text-surface-500 flex gap-2">
-                              <span>•</span>
-                              <span>{reason.explanation}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Rights Awareness Alert (Crucial Feature) */}
-                    {result.scheme.applicantRights?.length > 0 && (
-                      <div className="rights-alert p-4 mt-6">
-                        <h3 className="font-bold text-warning-600 mb-3 flex items-center gap-2">
-                          <ShieldAlert className="w-5 h-5" />
-                          Before you apply, know your rights:
-                        </h3>
-                        <ul className="space-y-4">
-                          {result.scheme.applicantRights.slice(0, 2).map((right, i) => (
-                            <li key={i}>
-                              <p className="font-semibold text-surface-800 text-sm mb-1">{right.right}</p>
-                              <p className="text-xs text-surface-500 leading-relaxed">{right.explanation}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+        <div className="space-y-4">
+          {matches.map(({ scheme, matchPercentage, matchReasons, missingRequirements }) => (
+            <div key={scheme._id} className="cleo-card cleo-card-hover p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                  <span className="cleo-badge bg-slate-100 text-slate-800 border-slate-200 mb-1">{scheme.category}</span>
+                  <h3 className="text-lg font-extrabold text-slate-900">{scheme.name}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">{scheme.ministry || 'Ministry of Social Justice & Empowerment'}</p>
                 </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-xl font-extrabold text-emerald-700 font-mono">{matchPercentage}%</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Eligibility Match</p>
+                  </div>
+                  <button
+                    onClick={() => handleApply(scheme._id)}
+                    disabled={applyingSchemeId === scheme._id}
+                    className="cleo-btn cleo-btn-accent text-xs px-4 py-2"
+                  >
+                    {applyingSchemeId === scheme._id ? 'Submitting...' : 'Claim & Apply'}
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Match Reasons Grid */}
+              <div className="grid md:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5 p-3 bg-emerald-50/60 border border-emerald-200 rounded-md">
+                  <p className="font-bold text-emerald-900 flex items-center gap-1">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                    Verified Entitlements
+                  </p>
+                  <ul className="space-y-1 text-emerald-800">
+                    {matchReasons.map((reason, i) => (
+                      <li key={i}>• {reason}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {missingRequirements && missingRequirements.length > 0 && (
+                  <div className="space-y-1.5 p-3 bg-slate-50 border border-slate-200 rounded-md">
+                    <p className="font-bold text-slate-700 flex items-center gap-1">
+                      <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+                      Self-Declaration Checklist
+                    </p>
+                    <ul className="space-y-1 text-slate-600">
+                      {missingRequirements.map((req, i) => (
+                        <li key={i}>• {req}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           ))}

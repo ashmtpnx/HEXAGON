@@ -3,273 +3,178 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
-import ProgressBar from '../components/ProgressBar';
 import Timeline from '../components/Timeline';
-import { FileText, ShieldAlert, AlertTriangle, Send, Upload, Info, MessageSquare } from 'lucide-react';
+import { ShieldAlert, CheckCircle, Clock, FileText, Send, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 export default function ApplicationDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
   const navigate = useNavigate();
-  
-  const [app, setApp] = useState(null);
+  const { user } = useAuth();
+  const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [grievanceText, setGrievanceText] = useState('');
-  const [escalating, setEscalating] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [updating, setUpdating] = useState(false);
 
-  const fetchApp = async () => {
+  useEffect(() => {
+    fetchDetail();
+  }, [id]);
+
+  const fetchDetail = async () => {
     try {
       const res = await api.get(`/applications/${id}`);
-      setApp(res.data.application);
+      setApplication(res.data);
     } catch (err) {
-      console.error(err);
-      navigate('/dashboard');
+      console.error('Failed to fetch application detail', err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchApp();
-  }, [id]);
-
-  const handleSubmit = async () => {
+  const handleUpdateStatus = async (newStatus) => {
+    setUpdating(true);
     try {
-      await api.patch(`/applications/${id}/submit`);
-      fetchApp();
-    } catch (err) {
-      alert('Failed to submit application.');
-    }
-  };
-
-  const handleDocumentToggle = async (docName, currentStatus) => {
-    try {
-      await api.patch(`/applications/${id}/documents`, {
-        docName,
-        isUploaded: !currentStatus
+      const res = await api.put(`/applications/${id}/status`, {
+        status: newStatus,
+        comment: commentText || `Status updated to ${newStatus}`
       });
-      fetchApp();
+      setApplication(res.data);
+      setCommentText('');
     } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleEscalate = async () => {
-    if (!window.confirm('Are you sure you want to escalate this rejection to the next authority level?')) return;
-    setEscalating(true);
-    try {
-      const res = await api.post(`/applications/${id}/escalate`);
-      alert(res.data.escalationMessage);
-      fetchApp();
-    } catch (err) {
-      alert('Failed to escalate.');
+      alert(err.response?.data?.error || 'Failed to update status');
     } finally {
-      setEscalating(false);
+      setUpdating(false);
     }
   };
 
-  const handleSendGrievance = async (e) => {
-    e.preventDefault();
-    if (!grievanceText.trim()) return;
-    
-    try {
-      await api.post(`/applications/${id}/grievance`, { message: grievanceText });
-      setGrievanceText('');
-      fetchApp();
-    } catch (err) {
-      alert('Failed to send message.');
+  if (loading) {
+    return <div className="p-12 text-center text-xs text-slate-500">Loading application detail...</div>;
+  }
+
+  if (!application) {
+    return <div className="p-12 text-center text-xs text-slate-500">Application not found.</div>;
+  }
+
+  const timelineSteps = [
+    { title: 'Application Submitted', description: 'Matched and logged into central verifier queue', date: application.createdAt },
+    { title: 'Document Audit', description: 'District officer verification of category credentials', date: application.updatedAt },
+    { title: 'Statutory Verification', description: 'Deemed approval window active (14 Days SLA)' },
+    { title: 'Final Disbursement', description: 'Benefit or capital subsidy credit' }
+  ];
+
+  const getStepIndex = (status) => {
+    switch (status) {
+      case 'submitted': return 1;
+      case 'under_review': return 2;
+      case 'approved': return 3;
+      case 'disbursed': return 4;
+      default: return 1;
     }
   };
-
-  if (loading || !app) return <div className="p-8 text-center text-surface-500">Loading application...</div>;
-
-  const scheme = app.schemeId;
-  const uploadedCount = app.documentChecklist.filter(d => d.isUploaded).length;
-  const isDraft = app.status === 'draft';
-  const isRejected = app.status === 'rejected';
-  
-  // Calculate current timeline step based on status history
-  let currentStep = 0;
-  if (app.status === 'submitted') currentStep = 1;
-  if (app.status === 'under_review') currentStep = 2;
-  if (app.status === 'approved') currentStep = scheme.processSteps.length;
-  if (isRejected || app.status === 'escalated') currentStep = -1;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-surface-800">{scheme.name}</h1>
-            <StatusBadge status={app.status} />
+    <div className="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6">
+      {/* Top Navigation */}
+      <button
+        onClick={() => navigate(-1)}
+        className="cleo-btn cleo-btn-secondary text-xs"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        <span>Back to Portal</span>
+      </button>
+
+      {/* Header Info */}
+      <div className="cleo-card p-6 bg-white space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-mono font-bold text-slate-900">{application.applicationNumber}</span>
+              <StatusBadge status={application.status} />
+            </div>
+            <h1 className="text-2xl font-extrabold text-slate-900">{application.schemeId?.name}</h1>
+            <p className="text-xs text-slate-500 mt-1">Applicant: <span className="font-semibold text-slate-800">{application.userId?.name}</span> ({application.userId?.email})</p>
           </div>
-          <p className="text-surface-500 text-sm">Application ID: {app._id.slice(-8).toUpperCase()}</p>
         </div>
-        
-        {isDraft && (
-          <button 
-            onClick={handleSubmit} 
-            disabled={uploadedCount < app.documentChecklist.length}
-            className={`btn-primary ${uploadedCount < app.documentChecklist.length ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            Submit Application
-          </button>
-        )}
+
+        {/* Dynamic Statutory Callout */}
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-900 space-y-1">
+          <p className="font-bold flex items-center gap-1.5">
+            <ShieldAlert className="w-4 h-4 text-amber-600" />
+            Statutory Binding SLA & Rejection Guarantee
+          </p>
+          <p className="text-[11px] leading-relaxed">
+            The verifier must either approve or issue an official defect notice by <strong>14 working days</strong>. Failure to act results in deemed administrative sanction.
+          </p>
+        </div>
       </div>
 
-      {/* INVALID REJECTION ALERT (Core differentiator) */}
-      {isRejected && !app.isRejectionValid && (
-        <div className="rejection-alert p-5 mb-8 animate-fade-in-up">
-          <div className="flex items-start gap-4">
-            <AlertTriangle className="w-8 h-8 text-danger-500 shrink-0 mt-1" />
-            <div>
-              <h3 className="font-bold text-danger-600 text-lg mb-2">Platform Alert: Invalid Rejection Reason Detected</h3>
-              <p className="text-surface-600 text-sm mb-2">
-                The stated rejection reason was: <strong className="text-surface-800">"{app.rejectionReason}"</strong>
-              </p>
-              <p className="text-surface-500 text-sm mb-4">
-                <span className="text-danger-500 font-semibold border-b border-danger-300 border-dashed">Why this is flagged:</span> {app.rejectionFlagReason}
-              </p>
+      {/* Split Details Layout */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Timeline & Documents */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="cleo-card p-6 space-y-4 bg-white">
+            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Verification Progress Timeline</h2>
+            <Timeline steps={timelineSteps} currentStep={getStepIndex(application.status)} />
+          </div>
+
+          {/* Officer Verification Actions (If Officer/Admin) */}
+          {(user?.role === 'admin' || user?.role === 'ngo_worker') && (
+            <div className="cleo-card p-6 space-y-4 bg-slate-900 text-white">
+              <h2 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Officer Administrative Action</h2>
               
-              {!app.escalationRequested ? (
-                <button 
-                  onClick={handleEscalate}
-                  disabled={escalating}
-                  className="btn-danger py-2"
-                >
-                  {escalating ? 'Escalating...' : 'One-Tap Escalate to Higher Authority'}
-                </button>
-              ) : (
-                <div className="text-success-500 font-semibold text-sm">
-                  ✓ Escalation initiated. Currently under review by: {app.escalationHistory[app.escalationHistory.length-1]?.authority}
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Enter verification notes or audit comments..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-md p-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-400"
+                />
+                
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleUpdateStatus('under_review')}
+                    disabled={updating}
+                    className="cleo-btn bg-amber-600 text-white border-amber-600 hover:bg-amber-700 text-xs py-1.5"
+                  >
+                    Mark Under Review
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus('approved')}
+                    disabled={updating}
+                    className="cleo-btn bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800 text-xs py-1.5"
+                  >
+                    Approve Application
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus('rejected')}
+                    disabled={updating}
+                    className="cleo-btn bg-red-700 text-white border-red-700 hover:bg-red-800 text-xs py-1.5"
+                  >
+                    Reject Application
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
 
-      {/* Valid Rejection View */}
-      {isRejected && app.isRejectionValid && (
-        <div className="bg-surface-50 border border-surface-200 p-5 rounded-xl mb-8">
-          <h3 className="font-bold text-surface-800 mb-2 text-lg">Application Rejected</h3>
-          <p className="text-surface-500 text-sm mb-1">Reason provided by evaluating authority:</p>
-          <div className="bg-white p-3 rounded-lg text-surface-700 border border-surface-200 font-mono text-sm">
-            {app.rejectionReason}
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column */}
-        <div className="lg:col-span-2 space-y-8">
-          
-          {/* Rights Awareness */}
-          <div className="glass-card p-6 border-l-4 border-l-accent-500">
-            <h3 className="font-bold text-surface-800 mb-4 flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-accent-500" />
-              Your Legal Rights for this Scheme
-            </h3>
-            <ul className="space-y-4">
-              {scheme.applicantRights?.map((right, i) => (
-                <li key={i} className="bg-surface-50 p-4 rounded-lg border border-surface-200">
-                  <p className="font-semibold text-surface-800 text-sm mb-1">{right.right}</p>
-                  <p className="text-xs text-surface-500">{right.explanation}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Document Checklist */}
-          <div className="glass-card p-6">
-            <div className="flex justify-between items-end mb-4">
-              <h3 className="font-bold text-surface-800 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary-600" />
-                Document Checklist
-              </h3>
-              <span className="text-xs text-surface-500">{uploadedCount} of {app.documentChecklist.length} uploaded</span>
-            </div>
-            
-            <div className="mb-6">
-              <ProgressBar current={uploadedCount} total={app.documentChecklist.length} />
-            </div>
-            
-            <ul className="space-y-3">
-              {app.documentChecklist.map((doc, idx) => (
-                <li key={idx} className="flex items-center justify-between p-3 rounded-lg bg-surface-50 border border-surface-200 hover:bg-surface-100 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <button 
-                      onClick={() => isDraft && handleDocumentToggle(doc.docName, doc.isUploaded)}
-                      disabled={!isDraft}
-                      className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${doc.isUploaded ? 'bg-success-500 text-white' : 'bg-white text-transparent border-2 border-surface-300'} ${!isDraft && 'cursor-default opacity-70'}`}
-                    >
-                      ✓
-                    </button>
-                    <div>
-                      <p className="text-sm font-medium text-surface-700">{doc.docName}</p>
-                      {doc.uploadedAt && <p className="text-[10px] text-surface-400">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>}
-                    </div>
+        {/* Right Col: Audit Comments & Metadata */}
+        <div className="space-y-6">
+          <div className="cleo-card p-5 space-y-3 bg-white">
+            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Application Audit Trail</h2>
+            {application.comments && application.comments.length > 0 ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {application.comments.map((c, idx) => (
+                  <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200 rounded text-xs space-y-1">
+                    <p className="text-slate-800 font-medium">{c.comment}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">{new Date(c.createdAt).toLocaleString('en-IN')}</p>
                   </div>
-                  {isDraft && !doc.isUploaded && (
-                    <button onClick={() => handleDocumentToggle(doc.docName, doc.isUploaded)} className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium">
-                      <Upload className="w-3 h-3" /> Simulate Upload
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500">No officer audit notes logged yet.</p>
+            )}
           </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-8">
-          
-          {/* Timeline */}
-          <div className="glass-card p-6">
-            <h3 className="font-bold text-surface-800 mb-6">Process Status</h3>
-            <Timeline steps={scheme.processSteps} currentStep={currentStep} />
-          </div>
-
-          {/* Grievance Thread */}
-          <div className="glass-card flex flex-col h-[400px]">
-            <div className="p-4 border-b border-surface-200 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary-600" />
-              <h3 className="font-bold text-surface-800">Application Grievances</h3>
-            </div>
-            
-            <div className="flex-grow p-4 overflow-y-auto space-y-4">
-              {app.grievanceThread.length === 0 ? (
-                <div className="text-center text-surface-400 text-sm mt-10">
-                  No messages yet. Use this thread to raise issues directly related to this application.
-                </div>
-              ) : (
-                app.grievanceThread.map((msg, idx) => (
-                  <div key={idx} className={`flex flex-col ${msg.role === 'admin' ? 'items-start' : 'items-end'}`}>
-                    <div className={`max-w-[85%] rounded-lg p-3 text-sm ${msg.role === 'admin' ? 'bg-surface-100 text-surface-700 border border-surface-200' : 'bg-primary-50 text-primary-700 border border-primary-100'}`}>
-                      {msg.message}
-                    </div>
-                    <span className="text-[10px] text-surface-400 mt-1">
-                      {msg.authorName} ({msg.role}) • {new Date(msg.timestamp).toLocaleString([], {hour: '2-digit', minute:'2-digit', month:'short', day:'numeric'})}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-            
-            <form onSubmit={handleSendGrievance} className="p-3 border-t border-surface-200 bg-surface-50 flex gap-2">
-              <input 
-                type="text" 
-                value={grievanceText}
-                onChange={(e) => setGrievanceText(e.target.value)}
-                placeholder="Type your message..."
-                className="input-field py-2 flex-grow text-sm"
-              />
-              <button type="submit" disabled={!grievanceText.trim()} className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-2 transition-colors disabled:opacity-50">
-                <Send className="w-4 h-4" />
-              </button>
-            </form>
-          </div>
-
         </div>
       </div>
     </div>

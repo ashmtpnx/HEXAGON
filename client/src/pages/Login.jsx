@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Hexagon, Lock, User as UserIcon, Mail } from 'lucide-react';
+import { Hexagon, Lock, User as UserIcon, Mail, ShieldCheck } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -16,105 +16,119 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       const user = await login(email, password);
-      if (user.role === 'admin') navigate('/admin');
-      else navigate('/dashboard');
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else if (user.role === 'ngo_worker') {
+        navigate('/assisted');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.error || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoSelect = (demoEmail) => {
+  const handleQuickLogin = (demoEmail, demoPass) => {
     setEmail(demoEmail);
-    setPassword('demo123');
+    setPassword(demoPass);
   };
 
   return (
-    <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-surface-50">
-      <div className="max-w-md w-full space-y-8 glass-card p-8">
-        <div>
-          <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-primary-50 border-2 border-primary-200 flex items-center justify-center">
-              <Hexagon className="h-8 w-8 text-primary-600" />
-            </div>
+    <div className="min-h-[85vh] cleo-grid-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6">
+        {/* Brand Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex w-12 h-12 rounded-xl bg-slate-900 items-center justify-center text-amber-500 shadow-xs">
+            <Hexagon className="w-6 h-6" />
           </div>
-          <h2 className="mt-6 text-center text-2xl font-extrabold text-surface-800">
-            Sign in to HEXAGON
-          </h2>
-          <p className="mt-2 text-center text-sm text-surface-500">
-            Unified platform for marginalized entrepreneurs
-          </p>
-        </div>
-        
-        {/* Demo Quick Select */}
-        <div className="bg-surface-50 border border-surface-200 rounded-lg p-4 mb-6">
-          <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-3 text-center">Demo Accounts (Click to fill)</p>
-          <div className="grid grid-cols-1 gap-2">
-            <button onClick={() => handleDemoSelect('applicant@demo.com')} className="text-left text-sm py-2 px-3 rounded-lg bg-white hover:bg-surface-50 border border-surface-200 transition-colors flex justify-between items-center">
-              <span className="font-medium text-surface-700">Standard Applicant</span> <span className="text-surface-400 font-mono text-xs">applicant@demo.com</span>
-            </button>
-            <button onClick={() => handleDemoSelect('lakshmi@demo.com')} className="text-left text-sm py-2 px-3 rounded-lg bg-danger-50 hover:bg-danger-100 border border-danger-100 transition-colors flex justify-between items-center">
-              <span className="font-medium text-danger-600">Rejection Demo</span> <span className="text-danger-400 font-mono text-xs">lakshmi@demo.com</span>
-            </button>
-            <button onClick={() => handleDemoSelect('vle@demo.com')} className="text-left text-sm py-2 px-3 rounded-lg bg-white hover:bg-surface-50 border border-surface-200 transition-colors flex justify-between items-center">
-              <span className="font-medium text-surface-700">VLE Operator</span> <span className="text-surface-400 font-mono text-xs">vle@demo.com</span>
-            </button>
-            <button onClick={() => handleDemoSelect('admin@demo.com')} className="text-left text-sm py-2 px-3 rounded-lg bg-white hover:bg-surface-50 border border-surface-200 transition-colors flex justify-between items-center">
-              <span className="font-medium text-surface-700">Ministry Admin</span> <span className="text-surface-400 font-mono text-xs">admin@demo.com</span>
-            </button>
-          </div>
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Portal Authentication</h2>
+          <p className="text-xs text-slate-500">Official Portal for Applicants, NGO Field Workers & Officers</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        {/* Login Form Card */}
+        <div className="cleo-card p-6 sm:p-8 space-y-6">
           {error && (
-            <div className="bg-danger-50 border border-danger-100 text-danger-600 px-4 py-3 rounded-lg relative text-sm">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-md">
               {error}
             </div>
           )}
-          
-          <div className="space-y-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-surface-400" />
-              </div>
-              <input
-                type="email"
-                required
-                className="input-field pl-10"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-surface-400" />
-              </div>
-              <input
-                type="password"
-                required
-                className="input-field pl-10"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address / Aadhaar User ID</label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@domain.gov.in"
+                  className="cleo-input pl-9"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="cleo-input pl-9"
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary flex justify-center py-3"
+              className="cleo-btn cleo-btn-primary w-full py-2.5 text-xs font-semibold"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Authenticating...' : 'Sign In To Portal'}
             </button>
+          </form>
+
+          {/* Quick Demo Accounts */}
+          <div className="pt-4 border-t border-slate-200 space-y-2">
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">Quick Demo Access</p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('applicant@example.com', 'password123')}
+                className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-center transition-colors"
+              >
+                <p className="text-xs font-semibold text-slate-800">Applicant</p>
+                <p className="text-[10px] text-slate-500">Entrepreneur</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('ngo@example.com', 'password123')}
+                className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-center transition-colors"
+              >
+                <p className="text-xs font-semibold text-slate-800">Field Worker</p>
+                <p className="text-[10px] text-slate-500">NGO Partner</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('admin@example.com', 'password123')}
+                className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-center transition-colors"
+              >
+                <p className="text-xs font-semibold text-slate-800">Admin</p>
+                <p className="text-[10px] text-slate-500">Government</p>
+              </button>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
