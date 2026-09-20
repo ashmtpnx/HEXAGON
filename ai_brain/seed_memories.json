@@ -1,0 +1,44 @@
+[
+  {
+    "category": "architecture",
+    "title": "HEXAGON System Architecture & Core Stack",
+    "content": "HEXAGON is a Unified Scheme Access, Verification, Rights-Awareness & Grievance Platform (SIH Problem Statement #92). Stack consists of: Frontend: React + Vite + Tailwind CSS v3 with custom dark-mode theme. Backend: Node.js + Express REST API with MongoDB/Mongoose. Key modules: Single-window matching engine, Duplicate-claim fingerprinting, VLE Assisted Mode, in-context grievance threads, and Rights Awareness panel.",
+    "tags": "architecture,tech-stack,mern,vite,sih92,tailwind",
+    "importance": 5
+  },
+  {
+    "category": "architecture",
+    "title": "Universal Cross-Model Memory Protocol",
+    "content": "Any AI model (Gemini, Claude, GPT-4, DeepSeek, Cursor) working in this workspace must read ai_brain/brain_summary.md before responding. All key technical decisions, bug fixes, architecture changes, and active tasks must be committed to the brain via 'python ai_brain/brain.py remember' to ensure continuity across model switches.",
+    "tags": "cross-model,ai-brain,memory-protocol,rules",
+    "importance": 5
+  },
+  {
+    "category": "preference",
+    "title": "Frontend UI/UX Design System Guidelines",
+    "content": "UI must use high-contrast dark theme with glowing accent gradients (emerald/indigo/cyan), glassmorphism cards, micro-animations, and responsive layout. No plain generic tables or unstyled buttons. Always include breadcrumbs, status tags, and clear feedback toast notifications.",
+    "tags": "frontend,ui,ux,glassmorphism,tailwind,darkmode",
+    "importance": 4
+  },
+  {
+    "category": "decision",
+    "title": "Authentication Architecture for Demo & Hackathon",
+    "content": "Role-based JWT authentication with pre-seeded demo accounts for quick role-switching between Applicant (citizen), VLE Operator, and Ministry Official. Avoid external SMS/OTP dependencies in local/demo mode for guaranteed reliability.",
+    "tags": "auth,jwt,demo,roles,security",
+    "importance": 4
+  },
+  {
+    "category": "bugfix",
+    "title": "PowerShell & Windows Path Handling Gotcha",
+    "content": "When executing commands in pwsh on Windows, use Get-ChildItem instead of 'ls -la'. Use forward slashes in markdown file links (file:///d:/...). Always wrap JSON or complex arguments properly in CLI calls.",
+    "tags": "powershell,windows,cli,gotchas",
+    "importance": 3
+  },
+  {
+    "category": "task",
+    "title": "AI Brain Memory Updation Program Initialization",
+    "content": "Initial deployment of AI Brain Memory Updation Engine, SQLite FTS5 store, auto-compiler for brain_summary.md, cross-model rules (AGENTS.md, GEMINI.md, CLAUDE.md), and interactive local web dashboard.",
+    "tags": "ai-brain,milestone,status",
+    "importance": 5
+  }
+]

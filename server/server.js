@@ -19,6 +19,7 @@ app.use('/api/match', require('./routes/match'));
 app.use('/api/applications', require('./routes/applications'));
 app.use('/api/grievances', require('./routes/grievances'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Health check
 app.get('/api/health', (req, res) => {

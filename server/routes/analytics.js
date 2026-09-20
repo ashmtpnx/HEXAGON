@@ -194,4 +194,88 @@ router.get('/dropoffs', protect, roleCheck('admin'), async (req, res) => {
   }
 });
 
+// GET /api/analytics/timeline — application volume over time
+router.get('/timeline', protect, roleCheck('admin'), async (req, res) => {
+  try {
+    const timeline = await Application.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$submittedAt" },
+            month: { $month: "$submittedAt" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } }
+    ]);
+    
+    // Format for frontend
+    const formattedTimeline = timeline
+      .filter(item => item._id.year && item._id.month)
+      .map(item => ({
+        name: `${item._id.month}/${item._id.year.toString().slice(-2)}`,
+        applications: item.count
+      }));
+
+    res.json({ timeline: formattedTimeline });
+  } catch (error) {
+    res.status(500).json({ message: 'Timeline analytics failed', error: error.message });
+  }
+});
+
+// GET /api/analytics/category-distribution — user categories
+router.get('/category-distribution', protect, roleCheck('admin'), async (req, res) => {
+  try {
+    const distribution = await User.aggregate([
+      { $match: { role: 'applicant' } },
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+    
+    const formattedDistribution = distribution.map(item => ({
+      name: item._id || 'Unknown',
+      value: item.count
+    }));
+
+    res.json({ distribution: formattedDistribution });
+  } catch (error) {
+    res.status(500).json({ message: 'Category distribution analytics failed', error: error.message });
+  }
+});
+
+// GET /api/analytics/grievance-stats — grievance resolution rate
+router.get('/grievance-stats', protect, roleCheck('admin'), async (req, res) => {
+  try {
+    const appsWithGrievances = await Application.find({ 'grievanceThread.0': { $exists: true } });
+    
+    let resolvedCount = 0;
+    
+    appsWithGrievances.forEach(app => {
+      // Check if any message in thread marks it as resolution
+      const hasResolution = app.grievanceThread.some(msg => msg.isResolution);
+      if (hasResolution) {
+        resolvedCount++;
+      }
+    });
+    
+    const resolutionRate = appsWithGrievances.length > 0 
+      ? ((resolvedCount / appsWithGrievances.length) * 100).toFixed(1) 
+      : 0;
+
+    res.json({ 
+      totalGrievances: appsWithGrievances.length,
+      resolvedGrievances: resolvedCount,
+      resolutionRate: parseFloat(resolutionRate)
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Grievance stats failed', error: error.message });
+  }
+});
+
 module.exports = router;

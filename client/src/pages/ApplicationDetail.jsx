@@ -81,7 +81,7 @@ export default function ApplicationDetail() {
     }
   };
 
-  if (loading || !app) return <div className="p-8 text-center">Loading application...</div>;
+  if (loading || !app) return <div className="p-8 text-center text-surface-500">Loading application...</div>;
 
   const scheme = app.schemeId;
   const uploadedCount = app.documentChecklist.filter(d => d.isUploaded).length;
@@ -100,10 +100,10 @@ export default function ApplicationDetail() {
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-white">{scheme.name}</h1>
+            <h1 className="text-2xl font-bold text-surface-800">{scheme.name}</h1>
             <StatusBadge status={app.status} />
           </div>
-          <p className="text-surface-400 text-sm">Application ID: {app._id.slice(-8).toUpperCase()}</p>
+          <p className="text-surface-500 text-sm">Application ID: {app._id.slice(-8).toUpperCase()}</p>
         </div>
         
         {isDraft && (
@@ -123,12 +123,12 @@ export default function ApplicationDetail() {
           <div className="flex items-start gap-4">
             <AlertTriangle className="w-8 h-8 text-danger-500 shrink-0 mt-1" />
             <div>
-              <h3 className="font-bold text-danger-400 text-lg mb-2">Platform Alert: Invalid Rejection Reason Detected</h3>
-              <p className="text-surface-200 text-sm mb-2">
-                The stated rejection reason was: <strong className="text-white">"{app.rejectionReason}"</strong>
+              <h3 className="font-bold text-danger-600 text-lg mb-2">Platform Alert: Invalid Rejection Reason Detected</h3>
+              <p className="text-surface-600 text-sm mb-2">
+                The stated rejection reason was: <strong className="text-surface-800">"{app.rejectionReason}"</strong>
               </p>
-              <p className="text-surface-300 text-sm mb-4">
-                <span className="text-danger-400 font-semibold border-b border-danger-500 border-dashed">Why this is flagged:</span> {app.rejectionFlagReason}
+              <p className="text-surface-500 text-sm mb-4">
+                <span className="text-danger-500 font-semibold border-b border-danger-300 border-dashed">Why this is flagged:</span> {app.rejectionFlagReason}
               </p>
               
               {!app.escalationRequested ? (
@@ -140,7 +140,7 @@ export default function ApplicationDetail() {
                   {escalating ? 'Escalating...' : 'One-Tap Escalate to Higher Authority'}
                 </button>
               ) : (
-                <div className="text-accent-400 font-semibold text-sm">
+                <div className="text-success-500 font-semibold text-sm">
                   ✓ Escalation initiated. Currently under review by: {app.escalationHistory[app.escalationHistory.length-1]?.authority}
                 </div>
               )}
@@ -151,10 +151,10 @@ export default function ApplicationDetail() {
 
       {/* Valid Rejection View */}
       {isRejected && app.isRejectionValid && (
-        <div className="bg-surface-800/80 border border-surface-700 p-5 rounded-xl mb-8">
-          <h3 className="font-bold text-white mb-2 text-lg">Application Rejected</h3>
-          <p className="text-surface-300 text-sm mb-1">Reason provided by evaluating authority:</p>
-          <div className="bg-surface-900 p-3 rounded text-surface-200 border border-surface-700 font-mono text-sm">
+        <div className="bg-surface-50 border border-surface-200 p-5 rounded-xl mb-8">
+          <h3 className="font-bold text-surface-800 mb-2 text-lg">Application Rejected</h3>
+          <p className="text-surface-500 text-sm mb-1">Reason provided by evaluating authority:</p>
+          <div className="bg-white p-3 rounded-lg text-surface-700 border border-surface-200 font-mono text-sm">
             {app.rejectionReason}
           </div>
         </div>
@@ -165,16 +165,16 @@ export default function ApplicationDetail() {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Rights Awareness */}
-          <div className="glass-card p-6 border-l-4 border-l-warning-500">
-            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-warning-500" />
+          <div className="glass-card p-6 border-l-4 border-l-accent-500">
+            <h3 className="font-bold text-surface-800 mb-4 flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-accent-500" />
               Your Legal Rights for this Scheme
             </h3>
             <ul className="space-y-4">
               {scheme.applicantRights?.map((right, i) => (
-                <li key={i} className="bg-surface-900/50 p-4 rounded-lg border border-surface-700">
-                  <p className="font-semibold text-surface-100 text-sm mb-1">{right.right}</p>
-                  <p className="text-xs text-surface-400">{right.explanation}</p>
+                <li key={i} className="bg-surface-50 p-4 rounded-lg border border-surface-200">
+                  <p className="font-semibold text-surface-800 text-sm mb-1">{right.right}</p>
+                  <p className="text-xs text-surface-500">{right.explanation}</p>
                 </li>
               ))}
             </ul>
@@ -183,11 +183,11 @@ export default function ApplicationDetail() {
           {/* Document Checklist */}
           <div className="glass-card p-6">
             <div className="flex justify-between items-end mb-4">
-              <h3 className="font-bold text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary-400" />
+              <h3 className="font-bold text-surface-800 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary-600" />
                 Document Checklist
               </h3>
-              <span className="text-xs text-surface-400">{uploadedCount} of {app.documentChecklist.length} uploaded</span>
+              <span className="text-xs text-surface-500">{uploadedCount} of {app.documentChecklist.length} uploaded</span>
             </div>
             
             <div className="mb-6">
@@ -196,22 +196,22 @@ export default function ApplicationDetail() {
             
             <ul className="space-y-3">
               {app.documentChecklist.map((doc, idx) => (
-                <li key={idx} className="flex items-center justify-between p-3 rounded bg-surface-900/50 border border-surface-700/50 hover:bg-surface-800 transition-colors">
+                <li key={idx} className="flex items-center justify-between p-3 rounded-lg bg-surface-50 border border-surface-200 hover:bg-surface-100 transition-colors">
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => isDraft && handleDocumentToggle(doc.docName, doc.isUploaded)}
                       disabled={!isDraft}
-                      className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${doc.isUploaded ? 'bg-success-500 text-white' : 'bg-surface-700 text-transparent border border-surface-600'} ${!isDraft && 'cursor-default opacity-70'}`}
+                      className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${doc.isUploaded ? 'bg-success-500 text-white' : 'bg-white text-transparent border-2 border-surface-300'} ${!isDraft && 'cursor-default opacity-70'}`}
                     >
                       ✓
                     </button>
                     <div>
-                      <p className="text-sm font-medium text-surface-200">{doc.docName}</p>
-                      {doc.uploadedAt && <p className="text-[10px] text-surface-500">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>}
+                      <p className="text-sm font-medium text-surface-700">{doc.docName}</p>
+                      {doc.uploadedAt && <p className="text-[10px] text-surface-400">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>}
                     </div>
                   </div>
                   {isDraft && !doc.isUploaded && (
-                    <button onClick={() => handleDocumentToggle(doc.docName, doc.isUploaded)} className="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1">
+                    <button onClick={() => handleDocumentToggle(doc.docName, doc.isUploaded)} className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium">
                       <Upload className="w-3 h-3" /> Simulate Upload
                     </button>
                   )}
@@ -226,29 +226,29 @@ export default function ApplicationDetail() {
           
           {/* Timeline */}
           <div className="glass-card p-6">
-            <h3 className="font-bold text-white mb-6">Process Status</h3>
+            <h3 className="font-bold text-surface-800 mb-6">Process Status</h3>
             <Timeline steps={scheme.processSteps} currentStep={currentStep} />
           </div>
 
           {/* Grievance Thread */}
           <div className="glass-card flex flex-col h-[400px]">
-            <div className="p-4 border-b border-surface-700 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary-400" />
-              <h3 className="font-bold text-white">Application Grievances</h3>
+            <div className="p-4 border-b border-surface-200 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-primary-600" />
+              <h3 className="font-bold text-surface-800">Application Grievances</h3>
             </div>
             
             <div className="flex-grow p-4 overflow-y-auto space-y-4">
               {app.grievanceThread.length === 0 ? (
-                <div className="text-center text-surface-500 text-sm mt-10">
+                <div className="text-center text-surface-400 text-sm mt-10">
                   No messages yet. Use this thread to raise issues directly related to this application.
                 </div>
               ) : (
                 app.grievanceThread.map((msg, idx) => (
                   <div key={idx} className={`flex flex-col ${msg.role === 'admin' ? 'items-start' : 'items-end'}`}>
-                    <div className={`max-w-[85%] rounded-lg p-3 text-sm ${msg.role === 'admin' ? 'bg-surface-800 text-surface-200' : 'bg-primary-900/40 text-primary-100 border border-primary-500/30'}`}>
+                    <div className={`max-w-[85%] rounded-lg p-3 text-sm ${msg.role === 'admin' ? 'bg-surface-100 text-surface-700 border border-surface-200' : 'bg-primary-50 text-primary-700 border border-primary-100'}`}>
                       {msg.message}
                     </div>
-                    <span className="text-[10px] text-surface-500 mt-1">
+                    <span className="text-[10px] text-surface-400 mt-1">
                       {msg.authorName} ({msg.role}) • {new Date(msg.timestamp).toLocaleString([], {hour: '2-digit', minute:'2-digit', month:'short', day:'numeric'})}
                     </span>
                   </div>
@@ -256,7 +256,7 @@ export default function ApplicationDetail() {
               )}
             </div>
             
-            <form onSubmit={handleSendGrievance} className="p-3 border-t border-surface-700 bg-surface-900/50 flex gap-2">
+            <form onSubmit={handleSendGrievance} className="p-3 border-t border-surface-200 bg-surface-50 flex gap-2">
               <input 
                 type="text" 
                 value={grievanceText}
@@ -264,7 +264,7 @@ export default function ApplicationDetail() {
                 placeholder="Type your message..."
                 className="input-field py-2 flex-grow text-sm"
               />
-              <button type="submit" disabled={!grievanceText.trim()} className="bg-primary-600 hover:bg-primary-500 text-white rounded-lg px-3 py-2 transition-colors disabled:opacity-50">
+              <button type="submit" disabled={!grievanceText.trim()} className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-2 transition-colors disabled:opacity-50">
                 <Send className="w-4 h-4" />
               </button>
             </form>

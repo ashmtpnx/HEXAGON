@@ -1,0 +1,14 @@
+# AI Brain Memory Protocol (.cursorrules)
+# Applicable to Cursor, Windsurf, Copilot, and other IDE AI agents.
+
+1. MANDATORY CONTEXT:
+   Always inspect `ai_brain/brain_summary.md` before taking actions in this workspace.
+   Adhere to all recorded architecture decisions and developer preferences.
+
+2. MEMORY PERSISTENCE:
+   When creating new modules, fixing bugs, or changing project state, run:
+   python ai_brain/brain.py remember "<Title>" "<Details>" --category [decision|architecture|bugfix|preference|task] --model "Cursor/IDE"
+
+3. WORKING STATE:
+   Keep active working state synchronized:
+   python ai_brain/brain.py update-state --task "<Task>" --model "Cursor/IDE"

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧠 AI Brain Memory — Universal Cross-Model Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
+  <div class="background-glow glow-3"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <div class="brain-icon-wrapper">
+          <span class="brain-icon">🧠</span>
+          <div class="pulse-ring"></div>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">
+            <h1>AI BRAIN MEMORY</h1>
+            <span class="version-tag">v2.0 LIVE</span>
+          </div>
+          <p class="brand-subtitle">Universal Cross-Model Memory Bank for HEXAGON</p>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span id="header-status-text">Connected & Synced</span>
+        </div>
+        <button id="btn-sync-git" class="btn btn-secondary">
+          <span class="btn-icon">🔄</span> Sync Git
+        </button>
+        <button id="btn-export-prompt" class="btn btn-secondary">
+          <span class="btn-icon">📋</span> Export for External LLM
+        </button>
+        <button id="btn-add-memory" class="btn btn-primary">
+          <span class="btn-icon">+</span> Remember New
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <section class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-total">0</div>
+        <div class="stat-label">Total Memories</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-model">Gemini</div>
+        <div class="stat-label">Last Active Model</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-importance">4.8</div>
+        <div class="stat-label">Avg Importance</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val text-emerald" id="stat-sync-time">Just now</div>
+        <div class="stat-label">Last Synchronized</div>
+      </div>
+    </section>
+
+    <!-- Working State Section -->
+    <section class="working-state-card glass-panel">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="section-badge">WORKING STATE</span>
+          <h2>⚡ Current AI Working Context</h2>
+        </div>
+        <button id="btn-save-state" class="btn btn-sm btn-outline">Save State</button>
+      </div>
+      <div class="state-grid">
+        <div class="state-col">
+          <label for="state-task">Active Task</label>
+          <input type="text" id="state-task" placeholder="e.g. Setting up AI Brain Memory and Testing" class="input-field">
+        </div>
+        <div class="state-col">
+          <label for="state-blockers">Blockers / Gotchas</label>
+          <input type="text" id="state-blockers" placeholder="None" class="input-field">
+        </div>
+        <div class="state-col full-width">
+          <label for="state-goals">Active Goals & Next Steps (Markdown)</label>
+          <textarea id="state-goals" rows="2" class="textarea-field" placeholder="- Next steps..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & Filter Controls -->
+    <section class="controls-panel glass-panel">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search memories, architecture decisions, bug fixes, tags..." class="search-field">
+        <button id="btn-clear-search" class="clear-btn" style="display: none;">✕</button>
+      </div>
+
+      <div class="filters-row">
+        <div class="category-pills" id="category-filters">
+          <button class="pill active" data-category="all">All Memories</button>
+          <button class="pill" data-category="architecture">🏛️ Architecture</button>
+          <button class="pill" data-category="decision">⚖️ Decisions</button>
+          <button class="pill" data-category="preference">👤 Preferences</button>
+          <button class="pill" data-category="bugfix">🐛 Bug Fixes</button>
+          <button class="pill" data-category="task">⚡ Tasks</button>
+        </div>
+
+        <div class="sort-group">
+          <label for="sort-importance">Filter:</label>
+          <select id="sort-importance" class="select-field">
+            <option value="0">All Importance</option>
+            <option value="5">⭐⭐⭐⭐⭐ Top Priority (5)</option>
+            <option value="4">⭐⭐⭐⭐ High Priority (4+)</option>
+            <option value="3">⭐⭐⭐ Standard (3+)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Memories Grid -->
+    <main class="memories-section">
+      <div class="memories-header">
+        <h3 id="memories-count-text">Showing 6 Memories</h3>
+        <span class="tip-text">💡 Cross-model redirection active. All changes auto-compile to <code>brain_summary.md</code>.</span>
+      </div>
+
+      <div class="memories-grid" id="memories-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div id="no-results" class="no-results-panel" style="display: none;">
+        <span class="empty-icon">📂</span>
+        <h3>No matching memories found</h3>
+        <p>Try refining your search query or clear filters.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: Add / Edit Memory -->
+  <div class="modal-overlay" id="memory-modal" style="display: none;">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <h3 id="modal-title">Remember New Memory</h3>
+        <button class="close-modal" id="btn-close-modal">✕</button>
+      </div>
+      <form id="memory-form">
+        <input type="hidden" id="mem-id">
+        <div class="form-group">
+          <label for="mem-title">Title *</label>
+          <input type="text" id="mem-title" class="input-field" placeholder="Descriptive title of decision, pattern, or fix" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mem-category">Category *</label>
+            <select id="mem-category" class="select-field" required>
+              <option value="architecture">🏛️ Architecture</option>
+              <option value="decision">⚖️ Key Decision</option>
+              <option value="preference">👤 User Preference</option>
+              <option value="bugfix">🐛 Bug Fix / Gotcha</option>
+              <option value="task">⚡ Active Task</option>
+              <option value="general">📝 General Knowledge</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mem-importance">Importance (1-5) *</label>
+            <select id="mem-importance" class="select-field">
+              <option value="5">5 — Critical Architecture / Rule</option>
+              <option value="4">4 — High Value</option>
+              <option value="3" selected>3 — Standard Context</option>
+              <option value="2">2 — Minor Reference</option>
+              <option value="1">1 — Trivia</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mem-content">Content & Solution *</label>
+          <textarea id="mem-content" class="textarea-field" rows="5" placeholder="Full explanation, code example, rationale, or instructions" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mem-tags">Tags (comma separated)</label>
+            <input type="text" id="mem-tags" class="input-field" placeholder="e.g. auth, jwt, react, tailwind">
+          </div>
+          <div class="form-group">
+            <label for="mem-model">Model / Author</label>
+            <input type="text" id="mem-model" class="input-field" placeholder="e.g. Gemini, Claude, Developer">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-memory">Save Memory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Export for External LLM -->
+  <div class="modal-overlay" id="export-modal" style="display: none;">
+    <div class="modal-dialog glass-panel large-modal">
+      <div class="modal-header">
+        <div>
+          <h3>📋 Export Prompt for External Models</h3>
+          <p class="modal-subtitle">Paste this prompt into ChatGPT, Claude.ai, or Gemini web to give it 100% of your AI Brain context.</p>
+        </div>
+        <button class="close-modal" id="btn-close-export">✕</button>
+      </div>
+      <div class="export-content-wrapper">
+        <textarea id="export-text" class="textarea-field export-textarea" readonly></textarea>
+      </div>
+      <div class="modal-actions">
+        <span id="copy-status" class="copy-status-text"></span>
+        <button type="button" class="btn btn-secondary" id="btn-cancel-export">Close</button>
+        <button type="button" class="btn btn-primary" id="btn-copy-export">
+          <span class="btn-icon">📋</span> Copy Prompt to Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

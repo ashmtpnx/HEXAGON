@@ -13,7 +13,7 @@ const schemeSchema = new mongoose.Schema({
     maxIncome: { type: Number, default: Infinity },
     businessStages: [{ type: String, enum: ['idea', 'startup', 'growing', 'established'] }],
     sectors: [{ type: String, enum: ['manufacturing', 'services', 'trading', 'agriculture'] }],
-    locationTypes: [{ type: String, enum: ['rural', 'urban'] }],
+    locationTypes: [{ type: String, enum: ['rural', 'urban' , 'alien'] }],
     minEducation: { type: String, default: null },
     requiresStreetVendor: { type: Boolean, default: false },
     requiresVendingCertificate: { type: Boolean, default: false },

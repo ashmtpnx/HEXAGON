@@ -1,0 +1,25 @@
+{
+  "developer": {
+    "name": "Ashmeet",
+    "role": "Full-Stack Architect & Lead Developer",
+    "project": "HEXAGON",
+    "workspace_path": "d:/PROJECTS/HEXAGON"
+  },
+  "preferences": {
+    "language_style": "Clean, modular, production-ready code with complete type/schema safety",
+    "frontend": "React 19 + Vite + Tailwind CSS v3 (dark-mode-first premium tech aesthetics)",
+    "backend": "Node.js + Express + MongoDB/Mongoose with RESTful architecture",
+    "state_management": "Context API / Redux Toolkit for complex shared state",
+    "code_rules": [
+      "Always write modular, self-contained components and controllers",
+      "Ensure proper error handling with descriptive JSON responses",
+      "Avoid placeholders or stub functions — deliver working implementations",
+      "Never destroy existing working functionality when refactoring",
+      "Keep UI responsive, accessible, and visually stunning with micro-animations"
+    ],
+    "ai_interaction": {
+      "response_style": "Concise, technical, precise, zero-fluff, highly actionable",
+      "mandatory_cross_model_rule": "Always consult brain_summary.md on every new prompt. Update memory upon key decisions."
+    }
+  }
+}
