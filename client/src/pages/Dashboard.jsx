@@ -18,13 +18,19 @@ export default function Dashboard() {
   const fetchApplications = async () => {
     try {
       const res = await api.get('/applications/my-applications');
-      setApplications(res.data);
+      const appList = Array.isArray(res.data) ? res.data : (res.data?.applications || []);
+      setApplications(appList);
     } catch (err) {
       console.error('Failed to fetch applications', err);
     } finally {
       setLoading(false);
     }
   };
+
+  const category = user?.category || user?.demographics?.category || 'General';
+  const gender = user?.gender || user?.demographics?.gender || 'N/A';
+  const income = user?.annualIncome ?? user?.financials?.annualIncome ?? 0;
+  const sector = user?.sector || user?.businessDetails?.sector || 'N/A';
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
@@ -42,7 +48,7 @@ export default function Dashboard() {
                 Verified Applicant
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">Category: {user?.demographics?.category || 'General'} • Gender: {user?.demographics?.gender || 'N/A'}</p>
+            <p className="text-xs text-slate-500 mt-0.5">Category: {category} • Gender: {gender}</p>
           </div>
         </div>
 
@@ -52,7 +58,7 @@ export default function Dashboard() {
             className="cleo-btn cleo-btn-accent text-xs font-semibold px-4 py-2.5"
           >
             <PlusCircle className="w-4 h-4" />
-            Check New Scheme Eligibility
+            Check Scheme Eligibility
           </button>
         </div>
       </div>
@@ -85,7 +91,9 @@ export default function Dashboard() {
                 <div key={app._id} className="cleo-card cleo-card-hover p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-900">{app.applicationNumber}</span>
+                      <span className="text-xs font-mono font-bold text-slate-900">
+                        {app.applicationNumber || `HEX-${app._id.toString().slice(-6).toUpperCase()}`}
+                      </span>
                       <StatusBadge status={app.status} />
                     </div>
                     <h3 className="text-sm font-bold text-slate-900">{app.schemeId?.name || 'Welfare Scheme'}</h3>
@@ -104,7 +112,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Right Column: Rights Summary & Assistance */}
+        {/* Right Column: Rights Summary & Demographics */}
         <div className="space-y-6">
           <div className="cleo-card p-5 space-y-3 bg-amber-50/50 border-amber-200">
             <div className="flex items-center gap-2 text-amber-800 text-xs font-bold uppercase tracking-wider">
@@ -121,15 +129,15 @@ export default function Dashboard() {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">Category</span>
-                <span className="font-semibold text-slate-900">{user?.demographics?.category || 'General'}</span>
+                <span className="font-semibold text-slate-900">{category}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">Annual Income</span>
-                <span className="font-semibold text-slate-900">₹{user?.financials?.annualIncome?.toLocaleString('en-IN') || '0'}</span>
+                <span className="font-semibold text-slate-900">₹{Number(income).toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-slate-500">Business Sector</span>
-                <span className="font-semibold text-slate-900">{user?.businessDetails?.sector || 'N/A'}</span>
+                <span className="font-semibold text-slate-900">{sector}</span>
               </div>
             </div>
           </div>

@@ -15,10 +15,10 @@ import AdminDashboard from './pages/AdminDashboard';
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-xs text-slate-500">Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
   }
   
   return children;
@@ -28,25 +28,31 @@ function App() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <main className="flex-grow flex flex-col">
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+          <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace /> : <Login />} />
           
           <Route path="/dashboard" element={
             <ProtectedRoute>
-              {user?.role === 'admin' ? <Navigate to="/admin" /> : <Dashboard />}
+              {user?.role === 'admin' ? <Navigate to="/admin" replace /> : <Dashboard />}
             </ProtectedRoute>
           } />
           
           <Route path="/match" element={
-            <ProtectedRoute allowedRoles={['applicant', 'vle']}>
+            <ProtectedRoute allowedRoles={['applicant', 'vle', 'ngo_worker', 'admin']}>
               <MatchResults />
             </ProtectedRoute>
           } />
           
+          <Route path="/applications/:id" element={
+            <ProtectedRoute>
+              <ApplicationDetail />
+            </ProtectedRoute>
+          } />
+
           <Route path="/application/:id" element={
             <ProtectedRoute>
               <ApplicationDetail />
@@ -54,7 +60,7 @@ function App() {
           } />
           
           <Route path="/assisted" element={
-            <ProtectedRoute allowedRoles={['vle']}>
+            <ProtectedRoute allowedRoles={['vle', 'ngo_worker', 'admin']}>
               <AssistedMode />
             </ProtectedRoute>
           } />
@@ -64,6 +70,8 @@ function App() {
               <AdminDashboard />
             </ProtectedRoute>
           } />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
