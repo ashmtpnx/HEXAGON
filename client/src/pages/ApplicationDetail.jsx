@@ -4,7 +4,11 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
 import Timeline from '../components/Timeline';
-import { ShieldAlert, CheckCircle, Clock, FileText, Send, AlertTriangle, ArrowLeft } from 'lucide-react';
+import ProgressBar from '../components/ProgressBar';
+import { 
+  ShieldAlert, CheckCircle, Clock, FileText, Send, AlertTriangle, ArrowLeft, 
+  UploadCloud, CheckCircle2, FileCheck, Eye, Trash2, ShieldCheck, Lock
+} from 'lucide-react';
 
 export default function ApplicationDetail() {
   const { id } = useParams();
@@ -14,6 +18,7 @@ export default function ApplicationDetail() {
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [uploadingDocName, setUploadingDocName] = useState(null);
 
   useEffect(() => {
     fetchDetail();
@@ -48,6 +53,38 @@ export default function ApplicationDetail() {
     }
   };
 
+  const handleFileUpload = async (docName, file) => {
+    if (!file) return;
+    setUploadingDocName(docName);
+    try {
+      // Send document checklist update to backend
+      const res = await api.patch(`/applications/${id}/documents`, {
+        docName,
+        isUploaded: true,
+        fileName: file.name
+      });
+      const updatedApp = res.data?.application || res.data;
+      setApplication(updatedApp);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Document upload failed. Please try again.');
+    } finally {
+      setUploadingDocName(null);
+    }
+  };
+
+  const handleRemoveDoc = async (docName) => {
+    try {
+      const res = await api.patch(`/applications/${id}/documents`, {
+        docName,
+        isUploaded: false
+      });
+      const updatedApp = res.data?.application || res.data;
+      setApplication(updatedApp);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to remove document.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -78,6 +115,30 @@ export default function ApplicationDetail() {
   const applicantName = application.userId?.name || user?.name || 'Applicant';
   const applicantEmail = application.userId?.email || user?.email || 'N/A';
   const appStatus = application.status || 'submitted';
+
+  // Build document items list (from application.documentChecklist or scheme requiredDocs)
+  const schemeRequiredDocs = application.schemeId?.requiredDocs || [
+    { name: 'Aadhaar Card', description: 'For identity and DOB verification', isMandatory: true },
+    { name: 'Caste / Category Certificate', description: 'Issued by District Magistrate or competent authority', isMandatory: true },
+    { name: 'PAN Card / Tax Identification', description: 'For business tax compliance', isMandatory: true },
+    { name: 'Business Project Report', description: 'Detailed viability and cost estimates plan', isMandatory: true },
+    { name: 'Bank Passbook / Account Statement', description: 'Last 6 months account statement for direct benefit transfer', isMandatory: true }
+  ];
+
+  const docChecklist = schemeRequiredDocs.map(reqDoc => {
+    const docName = typeof reqDoc === 'string' ? reqDoc : reqDoc.name;
+    const desc = typeof reqDoc === 'string' ? 'Mandatory verification document' : reqDoc.description;
+    const existing = (application.documentChecklist || []).find(d => d.docName === docName);
+    return {
+      docName,
+      description: desc,
+      isUploaded: existing ? existing.isUploaded : false,
+      uploadedAt: existing ? existing.uploadedAt : null
+    };
+  });
+
+  const uploadedCount = docChecklist.filter(d => d.isUploaded).length;
+  const totalDocs = docChecklist.length;
 
   const timelineSteps = [
     { title: 'Application Submitted', description: 'Matched and logged into central verifier queue', date: application.createdAt || new Date() },
@@ -137,8 +198,100 @@ export default function ApplicationDetail() {
 
       {/* Split Details Layout */}
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Timeline & Documents */}
+        {/* Left 2 Cols: Timeline & Interactive Document Upload Checklist */}
         <div className="md:col-span-2 space-y-6">
+          {/* ─── MANDATORY DOCUMENT CHECKLIST & UPLOAD MODULE ─── */}
+          <div className="cleo-card p-6 space-y-5 bg-white">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <FileCheck className="w-4 h-4 text-slate-900" />
+                  Mandatory Document Verification & Upload System
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">Attach required credentials for district verification officer audit</p>
+              </div>
+              <span className="cleo-badge bg-slate-100 text-slate-800 border-slate-300 font-mono">
+                {uploadedCount}/{totalDocs} Verified
+              </span>
+            </div>
+
+            {/* Document Verification Progress */}
+            <ProgressBar current={uploadedCount} total={totalDocs} label="Overall Document Compliance" />
+
+            {/* Document Checklist Items */}
+            <div className="space-y-3 pt-2">
+              {docChecklist.map((doc, idx) => (
+                <div key={idx} className={`p-4 border rounded-lg transition-all ${
+                  doc.isUploaded ? 'bg-emerald-50/40 border-emerald-200' : 'bg-white border-slate-200 hover:border-slate-300'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        {doc.isUploaded ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        ) : (
+                          <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                        )}
+                        <h4 className="text-xs font-bold text-slate-900">{doc.docName}</h4>
+                        {doc.isUploaded ? (
+                          <span className="cleo-badge bg-emerald-100 text-emerald-800 border-emerald-200 text-[10px]">Verified</span>
+                        ) : (
+                          <span className="cleo-badge bg-amber-100 text-amber-800 border-amber-200 text-[10px]">Upload Required</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">{doc.description}</p>
+                      {doc.uploadedAt && (
+                        <p className="text-[10px] font-mono text-emerald-700">
+                          Attached on: {new Date(doc.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Upload Controls */}
+                    <div className="shrink-0 flex items-center gap-2">
+                      {doc.isUploaded ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => alert(`Viewing verified record for: ${doc.docName}`)}
+                            className="cleo-btn cleo-btn-secondary text-xs px-2.5 py-1 text-slate-700"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>View</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveDoc(doc.docName)}
+                            className="cleo-btn bg-red-50 text-red-700 border-red-200 hover:bg-red-100 text-xs px-2.5 py-1"
+                            title="Remove document"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <label className="cleo-btn cleo-btn-primary text-xs px-3.5 py-1.5 cursor-pointer inline-flex items-center gap-1.5">
+                          <UploadCloud className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{uploadingDocName === doc.docName ? 'Uploading...' : 'Upload PDF / Image'}</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            className="hidden"
+                            disabled={uploadingDocName === doc.docName}
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) handleFileUpload(doc.docName, file);
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Timeline View */}
           <div className="cleo-card p-6 space-y-4 bg-white">
             <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Verification Progress Timeline</h2>
             <Timeline steps={timelineSteps} currentStep={getStepIndex(appStatus)} />
@@ -186,7 +339,7 @@ export default function ApplicationDetail() {
           )}
         </div>
 
-        {/* Right Col: Audit Comments & Metadata */}
+        {/* Right Col: Audit Comments & Security Metadata */}
         <div className="space-y-6">
           <div className="cleo-card p-5 space-y-3 bg-white">
             <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Application Audit Trail</h2>

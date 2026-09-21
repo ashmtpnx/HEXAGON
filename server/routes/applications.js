@@ -155,4 +155,43 @@ const handleUpdateStatus = async (req, res) => {
 router.put('/:id/status', protect, handleUpdateStatus);
 router.patch('/:id/status', protect, handleUpdateStatus);
 
+// PUT /api/applications/:id/documents & PATCH /api/applications/:id/documents — update document checklist
+const handleUpdateDocument = async (req, res) => {
+  try {
+    const { docName, isUploaded, fileName } = req.body;
+    const application = await Application.findById(req.params.id)
+      .populate('schemeId')
+      .populate('userId', 'name email category gender');
+
+    if (!application) return res.status(404).json({ message: 'Application not found' });
+
+    let doc = application.documentChecklist.find(d => d.docName === docName);
+    if (!doc) {
+      application.documentChecklist.push({
+        docName,
+        isUploaded: isUploaded !== false,
+        uploadedAt: isUploaded !== false ? new Date() : null
+      });
+    } else {
+      doc.isUploaded = isUploaded !== false;
+      doc.uploadedAt = isUploaded !== false ? new Date() : null;
+    }
+
+    application.statusHistory.push({
+      status: application.status,
+      timestamp: new Date(),
+      changedBy: req.user._id,
+      reason: `Document "${docName}" ${isUploaded !== false ? 'uploaded' : 'removed'} (${fileName || 'document.pdf'})`
+    });
+
+    await application.save();
+    res.json(application);
+  } catch (error) {
+    res.status(500).json({ message: 'Document update failed', error: error.message });
+  }
+};
+
+router.put('/:id/documents', protect, handleUpdateDocument);
+router.patch('/:id/documents', protect, handleUpdateDocument);
+
 module.exports = router;

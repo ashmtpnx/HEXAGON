@@ -1,20 +1,20 @@
 # 🧠 AI Brain Memory Snapshot — HEXAGON
-> **Status**: ACTIVE | **Total Memories**: 14 | **Last Compiled**: 2026-09-21 10:53:34
+> **Status**: ACTIVE | **Total Memories**: 15 | **Last Compiled**: 2026-09-21 11:45:57
 > **Universal Model Protocol**: *Any AI model interacting with this codebase MUST read and adhere to this memory snapshot before taking action.*
 
 ---
 
 ## ⚡ Current Working State
-- **Active Task**: Fix React Router plural route & demographic extraction
+- **Active Task**: Add Document Verification & Upload System
 - **Last Updating Model**: `Gemini`
 - **Blockers / Gotchas**: None
 - **Active Goals & Next Steps**:
-Commit & push complete route fixes to GitHub
+Commit & push document upload system to GitHub
 - **Working Notes**: Git Branch: main
 Recent Commits:
+a668f3f fix: add plural /applications/:id route in App.jsx and fix demographic extraction in Dashboard.jsx
 56555c6 fix: harden ApplicationDetail and MatchResults rendering against empty responses
 46c3962 fix: add /apply and /my-applications route aliases to server/routes/applications.js
-c2f4c66 fix: add GET /api/match/me and GET /api/match/user/:userId routes for scheme matching
 Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 
 ---
@@ -33,6 +33,10 @@ Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 ---
 
 ## 🏛️ System Architecture & Stack Knowledge
+### 🔹 Added Interactive Document Upload & Verification System `[imp: 5/5]`
+Created mandatory document checklist & file upload component in ApplicationDetail.jsx with progress compliance bar, upload triggers, document view/remove options, and PATCH/PUT /api/applications/:id/documents API handlers.
+*Tags*: `documents,upload,feature,frontend,backend`
+
 ### 🔹 Cleopatra Minimal UI Overhaul `[imp: 5/5]`
 Transformed HEXAGON frontend using Cleopatra design template variables, clean grid patterns, custom .cleo-card, .cleo-btn, .cleo-input, .cleo-badge components, removing generic Tailwind appearance.
 *Tags*: `ui,cleopatra,design,frontend`
