@@ -143,7 +143,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@domain.gov.in"
-                  className="cleo-input pl-9"
+                  className="cleo-input !pl-10"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="cleo-input pl-9"
+                  className="cleo-input !pl-10"
                 />
               </div>
             </div>
