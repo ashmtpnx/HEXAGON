@@ -1,4 +1,4 @@
-# HEXAGON Design System — Official Government Theme
+# NyaySetu Design System — Official Government Theme
 
 > Version 1.0 | September 2026
 > A clean, minimal, professional design system for a Government of India platform.

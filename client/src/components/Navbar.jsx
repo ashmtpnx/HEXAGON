@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Hexagon, LogOut, User as UserIcon, Menu, X, ShieldCheck } from 'lucide-react';
+import { Scale, LogOut, User as UserIcon, Menu, X, ShieldCheck } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -43,11 +43,11 @@ export default function Navbar() {
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center text-amber-500 shadow-xs">
-              <Hexagon className="w-5 h-5 fill-amber-500/20" />
+              <Scale className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-lg text-slate-900 tracking-tight">HEXAGON</span>
+                <span className="font-extrabold text-lg text-slate-900 tracking-tight">NyaySetu</span>
                 <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded border border-amber-200">PORTAL</span>
               </div>
               <p className="text-[10px] text-slate-500 font-medium leading-none hidden sm:block">Rights-Aware Welfare Matching Platform</p>

@@ -1,4 +1,4 @@
-# HEXAGON — Unified Scheme Access, Verification, Rights-Awareness & Grievance Platform
+# NyaySetu — Unified Scheme Access, Verification, Rights-Awareness & Grievance Platform
 
 **SIH Problem Statement #92 — Full MERN Stack Implementation Plan**
 

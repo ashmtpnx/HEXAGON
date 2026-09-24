@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Hexagon, Lock, User as UserIcon, Mail, ShieldCheck } from 'lucide-react';
+import { Scale, Lock, User as UserIcon, Mail, ShieldCheck } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -44,7 +44,7 @@ export default function Login() {
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex w-12 h-12 rounded-xl bg-slate-900 items-center justify-center text-amber-500 shadow-xs">
-            <Hexagon className="w-6 h-6" />
+            <Scale className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Portal Authentication</h2>
           <p className="text-xs text-slate-500">Official Portal for Applicants, NGO Field Workers & Officers</p>

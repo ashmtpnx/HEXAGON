@@ -1,20 +1,20 @@
 # 🧠 AI Brain Memory Snapshot — HEXAGON
-> **Status**: ACTIVE | **Total Memories**: 15 | **Last Compiled**: 2026-09-21 11:45:57
+> **Status**: ACTIVE | **Total Memories**: 16 | **Last Compiled**: 2026-09-25 04:14:40
 > **Universal Model Protocol**: *Any AI model interacting with this codebase MUST read and adhere to this memory snapshot before taking action.*
 
 ---
 
 ## ⚡ Current Working State
 - **Active Task**: Add Document Verification & Upload System
-- **Last Updating Model**: `Gemini`
+- **Last Updating Model**: `GitSync`
 - **Blockers / Gotchas**: None
 - **Active Goals & Next Steps**:
 Commit & push document upload system to GitHub
 - **Working Notes**: Git Branch: main
 Recent Commits:
+594dec0 feat: add interactive document verification & upload system to ApplicationDetail
 a668f3f fix: add plural /applications/:id route in App.jsx and fix demographic extraction in Dashboard.jsx
 56555c6 fix: harden ApplicationDetail and MatchResults rendering against empty responses
-46c3962 fix: add /apply and /my-applications route aliases to server/routes/applications.js
 Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 
 ---
@@ -54,6 +54,7 @@ Any AI model (Gemini, Claude, GPT-4, DeepSeek, Cursor) working in this workspace
 *Tags*: `cross-model,ai-brain,memory-protocol,rules`
 
 ## ⚖️ Key Technical & Product Decisions
+- **Project Rename HEXAGON to NyaySetu**: Renamed entire project branding from HEXAGON to NyaySetu across all frontend components (Navbar, LandingPage, Login, MatchResults, AssistedMode), backend server (server.js, auth.js, seedData.js, package.json, package-lock.json), client index.html title, and documentation (design-system.md, implementation_plan.md, ai_brain web). Replaced Hexagon lucide icon with Scale (justice scales) to match the NyaySetu (Bridge to Justice) brand identity. MongoDB default DB name changed from hexagon to nyaysetu. JWT secret default changed. Email domain changed from hexagon.local to nyaysetu.local. *(Tags: rename,branding,nyaysetu,hexagon)*
 - **Cross-Model Hand-off Protocol Verified**: Successfully validated that any AI model can query, remember, and update brain state seamlessly without data loss. *(Tags: cross-model,validation,verified)*
 - **Authentication Architecture for Demo & Hackathon**: Role-based JWT authentication with pre-seeded demo accounts for quick role-switching between Applicant (citizen), VLE Operator, and Ministry Official. Avoid external SMS/OTP dependencies in local/demo mode for guaranteed reliability. *(Tags: auth,jwt,demo,roles,security)*
 

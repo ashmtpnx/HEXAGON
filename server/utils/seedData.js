@@ -5,7 +5,7 @@ const Scheme = require('../models/Scheme');
 const Application = require('../models/Application');
 const MatchLog = require('../models/MatchLog');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hexagon';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nyaysetu';
 
 /* ───────────────────────────────────────────────────────────────
    10 REAL GOVERNMENT SCHEMES — with actual eligibility rules,

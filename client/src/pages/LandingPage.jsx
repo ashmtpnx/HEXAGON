@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Hexagon, ShieldAlert, Users, Scale, FileSearch, ArrowRight, Activity, Handshake, AlertTriangle, FileText, CheckCircle2, ChevronRight } from 'lucide-react';
+import { ShieldAlert, Users, Scale, FileSearch, ArrowRight, Activity, Handshake, AlertTriangle, FileText, CheckCircle2, ChevronRight } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -130,7 +130,7 @@ export default function LandingPage() {
             </div>
             <h3 className="text-2xl font-bold tracking-tight">Know Your Legal Rights As An Applicant</h3>
             <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-              Applications submitted through HEXAGON generate a tamper-evident audit trail with binding SLA timelines for district verifiers.
+              Applications submitted through NyaySetu generate a tamper-evident audit trail with binding SLA timelines for district verifiers.
             </p>
           </div>
           <Link to="/login" className="cleo-btn cleo-btn-accent px-6 py-3 text-sm shrink-0">
@@ -143,8 +143,8 @@ export default function LandingPage() {
       <footer className="bg-white border-t border-slate-200 py-8 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Hexagon className="w-4 h-4 text-slate-900" />
-            <span className="font-semibold text-slate-800">HEXAGON Welfare System</span>
+            <Scale className="w-4 h-4 text-slate-900" />
+            <span className="font-semibold text-slate-800">NyaySetu Welfare System</span>
             <span>• Ministry of Social Justice & Empowerment</span>
           </div>
           <div className="flex items-center gap-4 text-[11px]">

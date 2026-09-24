@@ -28,7 +28,7 @@ export default function AssistedMode() {
 
   const handleAudioHelp = () => {
     setAudioPrompt(true);
-    const msg = new SpeechSynthesisUtterance("Welcome to HEXAGON Field Kiosk. Please enter applicant name, category, and income details to find eligible schemes.");
+    const msg = new SpeechSynthesisUtterance("Welcome to NyaySetu Field Kiosk. Please enter applicant name, category, and income details to find eligible schemes.");
     msg.lang = 'en-IN';
     window.speechSynthesis.speak(msg);
     setTimeout(() => setAudioPrompt(false), 5000);
@@ -41,7 +41,7 @@ export default function AssistedMode() {
     try {
       const payload = {
         name: formData.name,
-        email: formData.email || `applicant_${Date.now()}@hexagon.local`,
+        email: formData.email || `applicant_${Date.now()}@nyaysetu.local`,
         password: 'password123',
         role: 'applicant',
         demographics: {

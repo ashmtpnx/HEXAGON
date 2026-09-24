@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
-import { ShieldAlert, CheckCircle, XCircle, ArrowRight, BookOpen, Hexagon } from 'lucide-react';
+import { ShieldAlert, CheckCircle, XCircle, ArrowRight, BookOpen, Scale } from 'lucide-react';
 
 export default function MatchResults() {
   const [matches, setMatches] = useState([]);
@@ -55,7 +55,7 @@ export default function MatchResults() {
       {/* Header Banner */}
       <div className="cleo-card p-6 bg-white space-y-2">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700">
-          <Hexagon className="w-4 h-4 text-amber-600" />
+          <Scale className="w-4 h-4 text-amber-600" />
           <span>Deterministic Matching Engine Output</span>
         </div>
         <h1 className="text-2xl font-extrabold text-slate-900">Verified Scheme Eligibility Results</h1>
