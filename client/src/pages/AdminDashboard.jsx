@@ -29,10 +29,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const chartData = stats?.statusBreakdown?.map(item => ({
-    name: item._id?.replace('_', ' ')?.toUpperCase() || 'UNKNOWN',
-    count: item.count
-  })) || [];
+  const chartData = Object.entries(stats?.statusBreakdown || {}).map(([key, count]) => ({
+    name: key.replace('_', ' ').toUpperCase(),
+    count
+  }));
 
   const COLORS = ['#0f172a', '#d97706', '#059669', '#dc2626', '#2563eb'];
 

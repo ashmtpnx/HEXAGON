@@ -1,5 +1,5 @@
 # 🧠 AI Brain Memory Snapshot — HEXAGON
-> **Status**: ACTIVE | **Total Memories**: 16 | **Last Compiled**: 2026-09-25 04:14:40
+> **Status**: ACTIVE | **Total Memories**: 17 | **Last Compiled**: 2026-09-25 04:52:50
 > **Universal Model Protocol**: *Any AI model interacting with this codebase MUST read and adhere to this memory snapshot before taking action.*
 
 ---
@@ -12,9 +12,9 @@
 Commit & push document upload system to GitHub
 - **Working Notes**: Git Branch: main
 Recent Commits:
+d654684 feat: rename project from HEXAGON to NyaySetu across entire codebase
 594dec0 feat: add interactive document verification & upload system to ApplicationDetail
 a668f3f fix: add plural /applications/:id route in App.jsx and fix demographic extraction in Dashboard.jsx
-56555c6 fix: harden ApplicationDetail and MatchResults rendering against empty responses
 Modified Files (2 total): M ai_brain/brain.db, M ai_brain/brain_summary.md
 
 ---
@@ -61,6 +61,7 @@ Any AI model (Gemini, Claude, GPT-4, DeepSeek, Cursor) working in this workspace
 ---
 
 ## 🐛 Known Gotchas & Solved Bugs
+- **Fixed Login, Seeding, and Admin Dashboard Crash**: 1. Rewrote Login.jsx to directly submit demo logins instead of just auto-filling. Added premium UI cards. 2. Fixed DB seeding crash by adding 'ngo_worker' to User.js role enum. 3. Fixed AdminDashboard.jsx crash by changing .map() to Object.entries() for statusBreakdown.
 - **Fix React Router Plural /applications/:id Route & Dashboard Demographics**: Fixed route matching mismatch in App.jsx by defining both /applications/:id and /application/:id, updated allowedRoles to include ngo_worker, and updated Dashboard.jsx demographic extraction logic.
 - **Fix Application Detail Rendering & Safe Navigation**: Hardened ApplicationDetail.jsx and MatchResults.jsx against unpopulated responses, adding defensive fallbacks and loading states to ensure seamless navigation after applying for a scheme.
 - **Fix Application Submission & Route Aliases**: Added /apply, /my-applications, PUT /:id/status route handlers in server/routes/applications.js and added applicationNumber virtual to Application schema.
